@@ -85,6 +85,23 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
 @media(max-width:360px){.dashboard-launch{padding:10px 9px;gap:7px}.dashboard-launch strong{font-size:13px}.dashboard-launch small{font-size:9px}.dashboard-kpi{padding:10px}.dashboard-kpi strong{font-size:22px}}
 
 .dashboard-heat-detail{margin:8px 0 0;font-size:10px;line-height:1.4;color:#cae3ff}.dashboard-heat-cell{padding:0;cursor:pointer}.dashboard-heat-cell:focus-visible{outline:2px solid #fff;outline-offset:1px}
+
+/* Confirmação em pop-up central, em duas etapas: Sim -> Confirmar. */
+.clear-confirm-overlay{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(2,8,25,.83);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.clear-confirm-overlay[hidden]{display:none!important}
+.clear-confirm-panel{width:min(100%,356px);padding:24px 21px 20px;border-radius:22px;border:1px solid rgba(158,197,255,.33);background:linear-gradient(160deg,#14366c,#081c3d 88%);color:#fff;box-shadow:0 22px 65px #01091dcf,inset 0 1px 0 #ffffff30;text-align:center}
+.clear-confirm-icon{width:55px;height:55px;border-radius:17px;margin:0 auto 14px;display:grid;place-items:center;background:linear-gradient(145deg,#c32e4e,#83172f);border:1px solid #ff9aa76b;color:#fff}
+.clear-confirm-icon svg{height:27px;width:27px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.clear-confirm-panel h2{margin:0;font-size:20px;line-height:1.3;font-weight:900;letter-spacing:-.35px}
+.clear-confirm-panel p{margin:10px 0 0;font-size:12px;color:#c9dbf4;line-height:1.55}
+.clear-confirm-field{display:block;margin:15px 0 0;padding:9px 11px;background:#ffffff13;border:1px solid #ffffff20;border-radius:12px;color:#fff;font-size:12px;font-weight:850;overflow-wrap:anywhere}
+.clear-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.clear-confirm-actions button{min-height:46px;border-radius:12px;font-size:14px;font-weight:850;touch-action:manipulation}
+.clear-confirm-cancel{background:#ffffff16;border:1px solid #ffffff35;color:#e6f0ff}
+.clear-confirm-proceed{background:linear-gradient(135deg,#f15b74,#bb203f);border:1px solid #ff94aa;color:#fff;box-shadow:0 5px 14px #9b153a66}
+.clear-confirm-actions button:active{transform:scale(.98)}
+@media(prefers-reduced-motion:reduce){.clear-confirm-actions button{transition:none}}
+
 </style>
 </head>
 <body>
@@ -169,6 +186,20 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     </div>
   </div>
   <div id="toast-banner" class="toast" role="status" aria-live="polite"><span id="toast-message"></span></div>
+
+  <!-- Confirmação em duas etapas para evitar perda acidental de contagens. -->
+  <div id="clear-confirm-overlay" class="clear-confirm-overlay" role="presentation" hidden>
+    <div class="clear-confirm-panel" role="alertdialog" aria-modal="true" aria-labelledby="clear-confirm-title" aria-describedby="clear-confirm-description">
+      <div class="clear-confirm-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M5 8h18M10 8V5h8v3M8 8l1 15h10l1-15M12 12v7M16 12v7"/></svg></div>
+      <h2 id="clear-confirm-title">Limpar este campo?</h2>
+      <p id="clear-confirm-description">Deseja realmente apagar toda a expressão matemática deste campo?</p>
+      <strong class="clear-confirm-field" id="clear-confirm-field"></strong>
+      <div class="clear-confirm-actions">
+        <button type="button" class="clear-confirm-cancel" id="clear-confirm-cancel">Não</button>
+        <button type="button" class="clear-confirm-proceed" id="clear-confirm-proceed">Sim</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Teclado próprio para operações matemáticas; evita o teclado alfabético Android. -->
   <aside id="math-pad" class="math-pad" role="group" aria-label="Teclado matemático" aria-hidden="true">
@@ -603,30 +634,50 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     if(rect.bottom>lower)window.scrollBy({top:rect.bottom-lower+15,behavior:'smooth'});
     else if(rect.top<10)window.scrollBy({top:rect.top-25,behavior:'smooth'});
   }
-  // Segurança contra limpeza acidental: só apaga após dois toques no mesmo campo, em 4 segundos.
-  let pendingClearField=null, pendingClearTimer=null;
+  // Modal de segurança: Limpar -> Sim -> Confirmar. Só a terceira ação apaga.
+  let pendingClearField=null,pendingClearValue=null,pendingClearStage=0;
   function resetClearConfirmation(){
-    clearTimeout(pendingClearTimer);
-    pendingClearTimer=null;pendingClearField=null;
-    const btn=document.querySelector('[data-pad-action="clear"]');
-    if(btn){btn.textContent='Limpar';btn.classList.remove('confirm-clear');btn.setAttribute('aria-label','Limpar campo com confirmação')}
+    pendingClearField=null;pendingClearValue=null;pendingClearStage=0;
+    const modal=$('clear-confirm-overlay');
+    if(modal)modal.hidden=true;
+    const button=document.querySelector('[data-pad-action="clear"]');
+    if(button){button.textContent='Limpar';button.classList.remove('confirm-clear');button.setAttribute('aria-label','Limpar campo com confirmação')}
   }
   function confirmClearMathField(){
     const inp=mathPadInput();
     if(!inp)return;
-    if(!inp.value){resetClearConfirmation();toast('Este campo já está vazio');return}
-    if(pendingClearField===activeMathField){
-      resetClearConfirmation();
-      modifyMathField('clear');
-      toast('Campo limpo');
-      return;
-    }
+    if(!inp.value){toast('Este campo já está vazio');return}
     resetClearConfirmation();
     pendingClearField=activeMathField;
-    const btn=document.querySelector('[data-pad-action="clear"]');
-    if(btn){btn.textContent='Confirmar?';btn.classList.add('confirm-clear');btn.setAttribute('aria-label','Confirmar a limpeza deste campo')}
-    toast('Toque novamente em Confirmar? para limpar o campo');
-    pendingClearTimer=setTimeout(resetClearConfirmation,4000);
+    pendingClearValue=inp.value;
+    pendingClearStage=1;
+    $('clear-confirm-title').textContent='Limpar este campo?';
+    $('clear-confirm-description').textContent='Deseja apagar toda a expressão matemática? Os números serão removidos apenas após a confirmação final.';
+    $('clear-confirm-field').textContent=$('math-pad-field').textContent;
+    $('clear-confirm-cancel').textContent='Não';
+    $('clear-confirm-proceed').textContent='Sim';
+    $('clear-confirm-overlay').hidden=false;
+    $('clear-confirm-cancel').focus({preventScroll:true});
+  }
+  function proceedClearConfirmation(){
+    if(!pendingClearField||!mathPadInput()||pendingClearField!==activeMathField){
+      resetClearConfirmation();return;
+    }
+    if(pendingClearStage===1){
+      pendingClearStage=2;
+      $('clear-confirm-title').textContent='Confirmar limpeza?';
+      $('clear-confirm-description').textContent='Esta ação apagará toda a contagem digitada neste campo. Confirme para continuar.';
+      $('clear-confirm-cancel').textContent='Cancelar';
+      $('clear-confirm-proceed').textContent='Confirmar';
+      $('clear-confirm-proceed').focus({preventScroll:true});
+      return;
+    }
+    if(pendingClearStage!==2)return;
+    const inp=mathPadInput();
+    if(!inp||inp.value!==pendingClearValue){resetClearConfirmation();toast('O conteúdo mudou. Abra a confirmação novamente.');return}
+    resetClearConfirmation();
+    modifyMathField('clear');
+    toast('Campo limpo');
   }
   function openMathPad(inp){
     if(!touchMathDevice()||!inp?.matches('[data-field]'))return;
@@ -664,6 +715,9 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     updateMathPadResult();
   }
   function setupMathPad(){
+    $('clear-confirm-proceed').addEventListener('click',proceedClearConfirmation);
+    $('clear-confirm-cancel').addEventListener('click',resetClearConfirmation);
+    $('clear-confirm-overlay').addEventListener('click',e=>{if(e.target===$('clear-confirm-overlay'))resetClearConfirmation()});
     $('areas-container').addEventListener('focusin',e=>{if(e.target.matches('[data-field]'))openMathPad(e.target)});
     $('math-pad').addEventListener('click',e=>{
       const key=e.target.closest('[data-pad-key]'),action=e.target.closest('[data-pad-action]');
@@ -682,10 +736,14 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     });
     document.addEventListener('pointerdown',e=>{
       if(!$('math-pad').classList.contains('show'))return;
+      if(e.target.closest('#clear-confirm-overlay'))return;
       if(e.target.closest('#math-pad,[data-field],[data-plus]'))return;
       closeMathPad();
     });
-    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMathPad()});
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Escape'&&!$('clear-confirm-overlay').hidden){e.preventDefault();resetClearConfirmation();return}
+      if(e.key==='Escape')closeMathPad();
+    });
   }
 
 

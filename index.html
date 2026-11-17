@@ -102,6 +102,26 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
 .clear-confirm-actions button:active{transform:scale(.98)}
 @media(prefers-reduced-motion:reduce){.clear-confirm-actions button{transition:none}}
 
+
+/* Múltiplas contagens por data */
+.session-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:4px 0 7px}
+.session-toolbar button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:45px;min-width:0;border:1px solid #84c2ff75;border-radius:13px;color:#fff;font-size:12px;font-weight:850;box-shadow:0 5px 14px #0006}
+.session-new{background:linear-gradient(135deg,#2479ef,#0b43b4)}
+.session-history{background:linear-gradient(135deg,#1c4a8b,#0a285a)}
+.session-toolbar svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.session-status{font-size:11px;color:#c6ddfb;margin:0 2px 11px;line-height:1.5}.session-status b{color:#fff}
+.sessions-overlay{position:fixed;inset:0;z-index:110;display:flex;justify-content:center;align-items:center;padding:15px;background:#020c20de;backdrop-filter:blur(7px)}
+.sessions-overlay[hidden]{display:none!important}
+.sessions-panel{width:min(100%,450px);max-height:min(82dvh,780px);display:flex;flex-direction:column;background:linear-gradient(155deg,#153969,#061938);border:1px solid #ffffff47;border-radius:20px;box-shadow:0 15px 50px #0009;overflow:hidden}
+.sessions-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px;border-bottom:1px solid #ffffff30}
+.sessions-head h2{font-size:20px;margin:0}.sessions-head p{font-size:12px;color:#b9d3f7;line-height:1.5;margin:5px 0 0}
+.sessions-close{background:#ffffff21;color:#fff;border:1px solid #ffffff4b;border-radius:10px;min-width:36px;height:36px;font-size:24px}
+.sessions-items{padding:13px;overflow:auto;display:flex;flex-direction:column;gap:9px}
+.sessions-item{display:flex;align-items:center;gap:10px;border:1px solid #ffffff35;border-radius:13px;padding:12px;background:#ffffff0e}
+.sessions-item.current{border-color:#7ed0ff;background:#2479ce40}
+.sessions-info{min-width:0;flex:1}.sessions-info b{display:block;font-size:13px;color:#fff}.sessions-info span{display:block;color:#c2dafa;font-size:11px;margin-top:5px}
+.sessions-open{border:1px solid #a8d2ff;border-radius:10px;background:#2069dc;color:#fff;font-size:12px;font-weight:850;min-height:37px;padding:0 12px}
+.sessions-open:disabled{background:#345778;opacity:.8}
 </style>
 </head>
 <body>
@@ -133,6 +153,11 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
       <span class="dashboard-go">ABRIR ›</span>
     </button>
 
+    <div class="session-toolbar">
+      <button type="button" id="btn-new-session" class="session-new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg>Nova contagem</button>
+      <button type="button" id="btn-sessions" class="session-history"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h14M7 12h14M7 19h14M3 5h.01M3 12h.01M3 19h.01"/></svg>Contagens salvas</button>
+    </div>
+    <p class="session-status" id="session-status"></p>
     <main class="areas-container" id="areas-container"></main>
     <div class="tools-row"><button type="button" id="btn-backup">Salvar backup</button><button type="button" id="btn-restore">Restaurar backup</button><button type="button" id="btn-rascunho">Carregar exemplo</button></div>
     <input type="file" id="backup-file" accept=".json,application/json" hidden>
@@ -178,6 +203,12 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     </div>
   </section>
 
+  <section id="sessions-modal" class="sessions-overlay" role="dialog" aria-modal="true" aria-labelledby="sessions-title" hidden>
+    <div class="sessions-panel">
+      <header class="sessions-head"><div><h2 id="sessions-title">Contagens salvas</h2><p>Abra qualquer contagem anterior, inclusive do mesmo dia.</p></div><button type="button" id="sessions-close" class="sessions-close" aria-label="Fechar">×</button></header>
+      <div id="sessions-items" class="sessions-items"></div>
+    </div>
+  </section>
   <div id="summary-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
     <div class="modal-panel">
       <header class="modal-header"><div><h2 id="modal-heading">Resumo da Contagem</h2><p id="modal-subtitle-date">Consolidado por área e seção</p></div><button id="close-modal-btn" class="close-modal" aria-label="Fechar resumo">×</button></header>
@@ -311,73 +342,143 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     try{const old=JSON.parse(localStorage.getItem(LEGACY_GEMINI_KEY)||'null');if(old&&old.values){for(const area of AREAS){for(const [field,,kind] of area.fields){const v=old.values?.[area.id]?.[kind];if(typeof v==='string')state.values[field]=v}}if(old.customDate&&/^\d{2}\/\d{2}\/\d{4}$/.test(old.customDate)){const [d,m,y]=old.customDate.split('/');state.date=`${y}-${m}-${d}`}}}catch(e){}
   }
 
-  // Histórico por dia. Uma data nunca carrega nem sobrescreve os campos de outra.
-  // O marco inicial de dados migrados é mantido sem atribuir um horário fictício.
-  let history={version:1,days:{},capacities:{},activeDate:null};
+  // v2: sessões distintas por dia; migra os dados v1 sem modificar expressões, baseline ou horas.
+  let history={version:2,days:{},capacities:{},activeDate:null};
+  const newSessionId=()=> 'soc-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);
   function areaTotalsFrom(values){
     const totals={};
-    for(const area of AREAS){totals[area.id]=0;for(const [id] of area.fields)totals[area.id]+=calculate((values||{})[id]||'').value}
+    for(const a of AREAS){totals[a.id]=0;for(const [id] of a.fields)totals[a.id]+=calculate((values||{})[id]||'').value}
     return totals;
   }
+  function makeSession(values={},imported=false,meta={}){
+    return {id:meta.id||newSessionId(),createdAt:meta.createdAt||null,time:meta.time||null,
+      updatedAt:meta.updatedAt||null,values:{...values},
+      baseline:meta.baseline?{...meta.baseline}:areaTotalsFrom(values),hours:meta.hours?{...meta.hours}:{},imported:Boolean(imported)};
+  }
   function makeHistoryDay(values={},imported=false){
-    return {values:{...values},baseline:areaTotalsFrom(values),hours:{},imported:Boolean(imported),updatedAt:null};
+    const s=makeSession(values,imported);return {sessions:[s],activeSessionId:s.id};
   }
-  function historyDay(date){
-    if(!history.days[date])history.days[date]=makeHistoryDay({},false);
-    const day=history.days[date];
-    if(!day.values||typeof day.values!=='object')day.values={};
-    if(!day.baseline||typeof day.baseline!=='object')day.baseline=areaTotalsFrom(day.values);
-    if(!day.hours||typeof day.hours!=='object')day.hours={};
-    return day;
+  function sessionContainer(date){
+    if(!history.days[date])history.days[date]=makeHistoryDay();
+    let d=history.days[date];
+    if(!Array.isArray(d.sessions)){
+      const s=makeSession(d.values||{},d.imported,{updatedAt:d.updatedAt,baseline:d.baseline,hours:d.hours});
+      d=history.days[date]={sessions:[s],activeSessionId:s.id};
+    }
+    if(!d.sessions.length){const s=makeSession();d.sessions=[s];d.activeSessionId=s.id}
+    for(const s of d.sessions){
+      if(!s.id)s.id=newSessionId();
+      if(!s.values||typeof s.values!=='object')s.values={};
+      if(!s.baseline||typeof s.baseline!=='object')s.baseline=areaTotalsFrom(s.values);
+      if(!s.hours||typeof s.hours!=='object')s.hours={};
+    }
+    if(!d.sessions.some(s=>s.id===d.activeSessionId))d.activeSessionId=d.sessions[d.sessions.length-1].id;
+    return d;
   }
+  function historyDay(date){const d=sessionContainer(date);return d.sessions.find(s=>s.id===d.activeSessionId)}
   function loadHistory(){
     let loaded=null;
     try{loaded=JSON.parse(localStorage.getItem(HISTORY_KEY)||'null')}catch(e){console.warn('Histórico ilegível',e)}
     if(loaded&&loaded.days&&typeof loaded.days==='object'&&!Array.isArray(loaded.days)){
-      history={version:1,days:loaded.days,capacities:loaded.capacities&&typeof loaded.capacities==='object'?loaded.capacities:{},activeDate:loaded.activeDate||null};
+      history={version:2,days:loaded.days,capacities:loaded.capacities&&typeof loaded.capacities==='object'?loaded.capacities:{},activeDate:loaded.activeDate||null};
       state.date=cleanDate(history.activeDate||state.date);
-      state.values={...historyDay(state.date).values};
+      const wasLegacy=Boolean(history.days[state.date]&&!Array.isArray(history.days[state.date].sessions));
+      const s=historyDay(state.date);
+      if(wasLegacy&&!s.time)s.time=state.time;
+      state.values={...s.values};if(s.time)state.time=cleanTime(s.time);
     }else{
-      const existing={...state.values};
-      const oldHasValues=Object.values(existing).some(v=>String(v||'').trim());
-      history.days[state.date]=makeHistoryDay(existing,oldHasValues);
+      const old={...state.values};
+      history.days[state.date]=makeHistoryDay(old,Object.values(old).some(v=>String(v||'').trim()));
+      historyDay(state.date).time=state.time;
       history.activeDate=state.date;
     }
     save({record:false});
   }
   function save(options={}){
-    const day=historyDay(state.date);
-    const changed=JSON.stringify(day.values)!==JSON.stringify(state.values);
-    day.values={...state.values};
+    const s=historyDay(state.date),changed=JSON.stringify(s.values)!==JSON.stringify(state.values);
+    s.values={...state.values};
     if(changed){
-      day.updatedAt=new Date().toISOString();
-      // Somente edições de hoje têm observação horária real. A hora exibida no
-      // cabeçalho pode ser ajustada manualmente e não altera estes registros.
-      if(options.record!==false&&state.date===today()&&AREAS.every(area=>area.fields.every(([field])=>calculate(state.values[field]||'').valid))){
+      s.updatedAt=new Date().toISOString();
+      if(options.record!==false&&state.date===today()&&AREAS.every(a=>a.fields.every(([id])=>calculate(state.values[id]||'').valid))){
         const n=new Date(),hour=String(n.getHours()).padStart(2,'0');
-        day.hours[hour]={observedAt:n.toISOString(),totals:areaTotalsFrom(state.values)};
+        s.hours[hour]={observedAt:n.toISOString(),totals:areaTotalsFrom(state.values)};
       }
     }
     history.activeDate=state.date;
-    try{
-      localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
-      // Mantida para compatibilidade com versões anteriores do aplicativo.
-      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
-    }catch(e){toast('Armazenamento cheio ou indisponível; exporte um backup')}
+    try{localStorage.setItem(HISTORY_KEY,JSON.stringify(history));localStorage.setItem(STORAGE_KEY,JSON.stringify(state));return true}
+    catch(e){toast('Armazenamento indisponível; exporte um backup');return false}
+  }
+  function sessionLabel(date,s){
+    const n=sessionContainer(date).sessions.findIndex(x=>x.id===s.id)+1;
+    return 'Contagem '+n+' · '+date.slice(8,10)+'/'+date.slice(5,7)+'/'+date.slice(0,4);
+  }
+  function renderSessionStatus(){
+    const el=$('session-status');if(!el)return;
+    el.innerHTML='Atual: <b>'+esc(sessionLabel(state.date,historyDay(state.date)))+'</b> · '+sessionContainer(state.date).sessions.length+' registro(s) na data';
+  }
+  function newCountingSession(){
+    closeMathPad();
+    if(!confirm('Iniciar nova contagem zerada? A contagem atual e todas as anteriores permanecerão salvas para consulta.'))return;
+    if(!save({record:false}))return;
+    const prev={date:state.date,time:state.time,values:{...state.values}};
+    const date=today(),group=sessionContainer(date),previousId=group.activeSessionId;
+    const s=makeSession({},false,{createdAt:new Date().toISOString(),time:now()});
+    group.sessions.push(s);group.activeSessionId=s.id;
+    state.date=date;state.time=s.time;state.values={};
+    if(!save({record:false})){
+      group.sessions=group.sessions.filter(x=>x.id!==s.id);group.activeSessionId=previousId;
+      Object.assign(state,prev);save({record:false});return;
+    }
+    closeSessionsModal();renderDateTime();render();renderDashboard();
+    toast('Nova contagem iniciada · anteriores preservadas');
+  }
+  function openCountingSession(date,id){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date||''))return;
+    const group=sessionContainer(date),s=group.sessions.find(x=>x.id===id);
+    if(!s)return;
+    if(date===state.date&&group.activeSessionId===id){closeSessionsModal();return}
+    if(!save({record:false}))return;
+    closeMathPad();group.activeSessionId=id;
+    state.date=date;state.time=cleanTime(s.time||state.time);state.values={...s.values};
+    if(!save({record:false}))return;
+    closeSessionsModal();renderDateTime();render();renderDashboard();
+    toast('Contagem anterior recuperada');
   }
   function switchDate(date){
     if(!/^\d{4}-\d{2}-\d{2}$/.test(date||''))return;
     if(date===state.date){renderDashboard();return}
+    if(!save({record:false}))return;
     closeMathPad();
-    save({record:false});
-    state.date=date;
-    state.values={...historyDay(date).values};
-    history.activeDate=date;
-    save({record:false});
-    renderDateTime();
-    render();
-    renderDashboard();
+    const s=historyDay(date);
+    state.date=date;state.time=cleanTime(s.time||state.time);state.values={...s.values};
+    if(!save({record:false}))return;
+    renderDateTime();render();renderDashboard();
     toast('Contagem de '+date.slice(8,10)+'/'+date.slice(5,7)+'/'+date.slice(0,4)+' carregada');
+  }
+  function renderSessionsList(){
+    let html='';
+    for(const date of Object.keys(history.days).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort().reverse()){
+      const group=sessionContainer(date);
+      for(let i=group.sessions.length-1;i>=0;i--){
+        const s=group.sessions[i],on=date===state.date&&group.activeSessionId===s.id;
+        const totals=areaTotalsFrom(s.values),sum=AREAS.filter(a=>a.id!=='buffer').reduce((v,a)=>v+(totals[a.id]||0),0);
+        html+='<div class="sessions-item '+(on?'current':'')+'"><div class="sessions-info"><b>'+esc(sessionLabel(date,s))+(on?' · ATUAL':'')+
+          '</b><span>Total: '+fmt(sum)+(s.time?' · '+esc(s.time):'')+' · Fora de Buffer: '+fmt(totals.buffer||0)+
+          '</span></div><button type="button" class="sessions-open" data-session-date="'+esc(date)+'" data-session-id="'+esc(s.id)+'" '+
+          (on?'disabled':'')+'>'+(on?'Aberta':'Abrir')+'</button></div>';
+      }
+    }
+    $('sessions-items').innerHTML=html||'<p style="color:#c9dcff">Nenhuma contagem salva.</p>';
+  }
+  function openSessionsModal(){closeMathPad();renderSessionsList();$('sessions-modal').hidden=false;$('sessions-close').focus({preventScroll:true})}
+  function closeSessionsModal(){$('sessions-modal').hidden=true}
+  function setupSessions(){
+    $('btn-new-session').addEventListener('click',newCountingSession);
+    $('btn-sessions').addEventListener('click',openSessionsModal);
+    $('sessions-close').addEventListener('click',closeSessionsModal);
+    $('sessions-modal').addEventListener('click',e=>{if(e.target===$('sessions-modal'))closeSessionsModal()});
+    $('sessions-items').addEventListener('click',e=>{const b=e.target.closest('[data-session-id]');if(b)openCountingSession(b.dataset.sessionDate,b.dataset.sessionId)});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sessions-modal').hidden)closeSessionsModal()});
   }
 
   function toast(msg){const x=$('toast-banner');x.textContent=msg;x.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.remove('show'),2700)}
@@ -400,7 +501,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     el.closest('.math-input-pill')?.classList.toggle('expanded',needed>52);
   }
   function resizeAllMathFields(){document.querySelectorAll('textarea[data-field]').forEach(resizeMathField)}
-  function render(){ $('tabs-container').innerHTML=AREAS.map(tabMarkup).join('');$('areas-container').innerHTML=AREAS.map(areaMarkup).join('');resizeAllMathFields();refreshAll() }
+  function render(){ $('tabs-container').innerHTML=AREAS.map(tabMarkup).join('');$('areas-container').innerHTML=AREAS.map(areaMarkup).join('');resizeAllMathFields();refreshAll();renderSessionStatus() }
   function setActive(id,scroll){active=id;open[id]=true;updateOpenState();if(scroll){requestAnimationFrame(()=>setTimeout(()=>$('card-area-'+id)?.scrollIntoView({behavior:'smooth',block:'start'}),60))}}
   function updateOpenState(){for(const area of AREAS){const card=$('card-area-'+area.id);if(!card)continue;card.classList.toggle('open',!!open[area.id]);card.querySelector('.area-header')?.setAttribute('aria-expanded',String(!!open[area.id]));const tab=document.querySelector(`[data-tab="${area.id}"]`);if(tab){tab.classList.toggle('active',active===area.id);tab.setAttribute('aria-pressed',String(active===area.id))}}requestAnimationFrame(resizeAllMathFields);}
   function snapshot(){const val={},totals={};const invalid=[];for(const a of AREAS){totals[a.id]=0;for(const [field] of a.fields){const ans=calculate(state.values[field]||'');if(!ans.valid)invalid.push(field);val[field]=ans.value;totals[a.id]+=ans.value}}
@@ -596,7 +697,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
 
   function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000)}
   async function exportPNG(share=false){const c=makePNG();if(!c)return;const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob){toast('Não foi possível gerar o PNG');return}const name='Contagem_SOC_'+state.date+'_'+state.time.replace(':','h')+'.png';if(share&&navigator.share&&navigator.canShare){const file=new File([blob],name,{type:'image/png'});if(navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Contagem SOC'});return}catch(e){if(e.name==='AbortError')return}}}downloadBlob(blob,name);toast(share?'PNG salvo para compartilhar':'PNG exportado')}
-  function backup(){save({record:false});const blob=new Blob([JSON.stringify({type:'ContagemSOC',version:4,state,history},null,2)],{type:'application/json'});downloadBlob(blob,'Contagem_SOC_backup_'+state.date+'.json');toast('Backup gerado')}
+  function backup(){if(!save({record:false}))return;const blob=new Blob([JSON.stringify({type:'ContagemSOC',version:5,state,history},null,2)],{type:'application/json'});downloadBlob(blob,'Contagem_SOC_backup_'+state.date+'_'+Date.now()+'.json');toast('Backup de todas as contagens gerado')}
   async function restore(file){
     if(!file)return;
     try{
@@ -604,7 +705,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
       if(!payload.values||typeof payload.values!=='object')throw Error('Backup sem contagens');
       if(Object.values(state.values).some(v=>String(v||'').trim())&&!confirm('Restaurar o backup? Os dados atuais serão substituídos.'))return;
       if(data.history&&data.history.days&&typeof data.history.days==='object'){
-        history={version:1,days:data.history.days,capacities:data.history.capacities||{},activeDate:data.history.activeDate||null};
+        history={version:2,days:data.history.days,capacities:data.history.capacities||{},activeDate:data.history.activeDate||null};
         state.date=cleanDate(history.activeDate||payload.date);state.values={...historyDay(state.date).values};
       }else{
         // Backup antigo: restaurar apenas a data informada, preservando outros dias.
@@ -834,7 +935,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     $('dashboard-hours').innerHTML=dashboardProgressSvg(timeline);
     $('dashboard-areas').innerHTML=dashboardCompare(currentTotals);
     $('dashboard-heat').innerHTML=dashboardHeat(timeline);
-    $('dashboard-saved-dates').innerHTML='<div class="dashboard-history-list">'+days.slice(0,24).map(date=>'<button type="button" class="dashboard-history-date '+(date===state.date?'current':'')+'" data-history-date="'+date+'">'+date.slice(8,10)+'/'+date.slice(5,7)+'/'+date.slice(0,4)+'</button>').join('')+'</div><p style="font-size:10px;color:#a9c6ee;margin-top:10px">'+days.length+' data(s) preservada(s) neste aparelho.</p>';
+    $('dashboard-saved-dates').innerHTML='<div class="dashboard-history-list">'+days.slice(0,24).map(date=>'<button type="button" class="dashboard-history-date '+(date===state.date?'current':'')+'" data-history-date="'+date+'">'+date.slice(8,10)+'/'+date.slice(5,7)+'/'+date.slice(0,4)+' ('+sessionContainer(date).sessions.length+')</button>').join('')+'</div><p style="font-size:10px;color:#a9c6ee;margin-top:10px">'+days.length+' data(s). Para abrir outra contagem da mesma data, use Contagens salvas.</p>';
   }
   function openDashboard(){closeMathPad();renderDashboard();$('dashboard-modal').classList.remove('hidden');document.body.style.overflow='hidden'}
   function closeDashboard(){$('dashboard-modal').classList.add('hidden');document.body.style.overflow=''}
@@ -856,12 +957,12 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('dashboard-modal').classList.contains('hidden'))closeDashboard()});
   }
 
-  function setup(){readStorage();loadHistory();renderDateTime();render();setupMathPad();setupDashboard();
+  function setup(){readStorage();loadHistory();renderDateTime();render();setupMathPad();setupDashboard();setupSessions();
     $('areas-container').addEventListener('click',e=>{const t=e.target.closest('[data-area-toggle]');if(t){const id=t.dataset.areaToggle;open[id]=!open[id];if(open[id])active=id;updateOpenState();return}const plus=e.target.closest('[data-plus]');if(plus){const id=plus.dataset.plus,inp=$('input-'+id);if(!inp)return;const pos=inp.selectionStart??inp.value.length;const end=inp.selectionEnd??pos;const start=inp.value.slice(0,pos),endtext=inp.value.slice(end);const v=start&&/\d$/.test(start)?'+':'';if(v){inp.value=start+v+endtext;inp.setSelectionRange(pos+1,pos+1);inp.dispatchEvent(new Event('input',{bubbles:true}))}inp.focus()}});
     $('areas-container').addEventListener('keydown',e=>{const t=e.target.closest('[data-area-toggle]');if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();t.click()}});
     $('areas-container').addEventListener('input',e=>{if(!e.target.matches('[data-field]'))return;const id=e.target.dataset.field;state.values[id]=e.target.value;resizeMathField(e.target);save();refreshAll(id);if(pendingClearField)resetClearConfirmation();if(activeMathField===id)updateMathPadResult();if(!$('dashboard-modal').classList.contains('hidden'))renderDashboard()});
     $('tabs-container').addEventListener('click',e=>{const tab=e.target.closest('[data-tab]');if(tab)setActive(tab.dataset.tab,true)});
-    function setupPicker(buttonId,inputId,type){const btn=$(buttonId),inp=$(inputId);btn.addEventListener('click',()=>{try{inp.showPicker?inp.showPicker():inp.click()}catch(e){inp.click()}});inp.addEventListener('change',()=>{if(inp.value){if(type==='date')switchDate(inp.value);else{state.time=inp.value;renderDateTime();save({record:false})}}})}
+    function setupPicker(buttonId,inputId,type){const btn=$(buttonId),inp=$(inputId);btn.addEventListener('click',()=>{try{inp.showPicker?inp.showPicker():inp.click()}catch(e){inp.click()}});inp.addEventListener('change',()=>{if(inp.value){if(type==='date')switchDate(inp.value);else{state.time=inp.value;historyDay(state.date).time=state.time;renderDateTime();save({record:false})}}})}
     setupPicker('date-trigger-btn','hidden-date-input','date');setupPicker('time-trigger-btn','hidden-time-input','time');
     $('btn-resumo').addEventListener('click',openSummary);$('close-modal-btn').addEventListener('click',closeSummary);$('summary-modal').addEventListener('click',e=>{if(e.target===$('summary-modal'))closeSummary()});
     $('btn-copy-summary').addEventListener('click',()=>copy(textReport()));$('btn-compartilhar').addEventListener('click',async()=>{if(navigator.share){try{await navigator.share({title:'Contagem SOC',text:textReport()});return}catch(e){if(e.name==='AbortError')return}}copy(textReport())});$('btn-exportar-png').addEventListener('click',()=>exportPNG(false));

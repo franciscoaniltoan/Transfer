@@ -318,7 +318,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
       day.updatedAt=new Date().toISOString();
       // Somente edições de hoje têm observação horária real. A hora exibida no
       // cabeçalho pode ser ajustada manualmente e não altera estes registros.
-      if(options.record!==false&&state.date===today()){
+      if(options.record!==false&&state.date===today()&&AREAS.every(area=>area.fields.every(([field])=>calculate(state.values[field]||'').valid))){
         const n=new Date(),hour=String(n.getHours()).padStart(2,'0');
         day.hours[hour]={observedAt:n.toISOString(),totals:areaTotalsFrom(state.values)};
       }

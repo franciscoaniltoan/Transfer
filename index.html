@@ -37,6 +37,10 @@
 .math-pad-keys{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
 .math-pad-key{height:48px;border:1px solid #dce9ff;border-radius:12px;color:#102c59;background:linear-gradient(180deg,#fff,#dce9ff);font-size:23px;font-weight:850;box-shadow:0 3px 0 #0006;touch-action:manipulation;user-select:none}
 .math-pad-key:active{transform:translateY(2px);box-shadow:0 1px 0 #0006}
+.math-pad-key.confirm-clear{color:#fff;background:linear-gradient(145deg,#cf314c,#8e1630);border-color:#fa8ca1;font-size:12px;animation:clearConfirmPulse 1.15s ease-in-out infinite alternate}
+@keyframes clearConfirmPulse{from{box-shadow:0 0 0 0 #ff5d7822}to{box-shadow:0 0 0 3px #ff5d7866}}
+@media(prefers-reduced-motion:reduce){.math-pad-key.confirm-clear{animation:none}}
+
 .math-pad-key.operator{color:#fff;background:linear-gradient(160deg,#3185fa,#1452bb);border-color:#519dff}
 .math-pad-key.utility{font-size:15px;background:linear-gradient(170deg,#415e8c,#25416d);border-color:#6a8bb6;color:#fff}
 .math-pad-key.done{font-size:15px;color:#fff;background:linear-gradient(155deg,#0eae85,#067f6d);border-color:#42c8ae}
@@ -178,7 +182,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
       <button class="math-pad-key" type="button" data-pad-key="4">4</button><button class="math-pad-key" type="button" data-pad-key="5">5</button><button class="math-pad-key" type="button" data-pad-key="6">6</button><button class="math-pad-key operator" type="button" data-pad-key="-">−</button>
       <button class="math-pad-key" type="button" data-pad-key="1">1</button><button class="math-pad-key" type="button" data-pad-key="2">2</button><button class="math-pad-key" type="button" data-pad-key="3">3</button><button class="math-pad-key operator" type="button" data-pad-key="*">×</button>
       <button class="math-pad-key operator" type="button" data-pad-key="(">(</button><button class="math-pad-key" type="button" data-pad-key="0">0</button><button class="math-pad-key operator" type="button" data-pad-key=")">)</button><button class="math-pad-key operator" type="button" data-pad-key="/">÷</button>
-      <button class="math-pad-key" type="button" data-pad-key=".">.</button><button class="math-pad-key utility delete" type="button" data-pad-action="backspace" aria-label="Apagar um caractere">⌫</button><button class="math-pad-key utility" type="button" data-pad-action="clear">Limpar</button><button class="math-pad-key done" type="button" data-pad-action="done">Concluir</button>
+      <button class="math-pad-key" type="button" data-pad-key=".">.</button><button class="math-pad-key utility delete" type="button" data-pad-action="backspace" aria-label="Apagar um caractere">⌫</button><button class="math-pad-key utility" type="button" data-pad-action="clear" aria-label="Limpar campo com confirmação">Limpar</button><button class="math-pad-key done" type="button" data-pad-action="done">Concluir</button>
     </div>
     <div class="math-pad-help"><span>Ex.: 17+14+12+</span><button class="math-pad-next" type="button" data-pad-action="next">Próximo campo →</button></div>
   </aside>
@@ -599,8 +603,34 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     if(rect.bottom>lower)window.scrollBy({top:rect.bottom-lower+15,behavior:'smooth'});
     else if(rect.top<10)window.scrollBy({top:rect.top-25,behavior:'smooth'});
   }
+  // Segurança contra limpeza acidental: só apaga após dois toques no mesmo campo, em 4 segundos.
+  let pendingClearField=null, pendingClearTimer=null;
+  function resetClearConfirmation(){
+    clearTimeout(pendingClearTimer);
+    pendingClearTimer=null;pendingClearField=null;
+    const btn=document.querySelector('[data-pad-action="clear"]');
+    if(btn){btn.textContent='Limpar';btn.classList.remove('confirm-clear');btn.setAttribute('aria-label','Limpar campo com confirmação')}
+  }
+  function confirmClearMathField(){
+    const inp=mathPadInput();
+    if(!inp)return;
+    if(!inp.value){resetClearConfirmation();toast('Este campo já está vazio');return}
+    if(pendingClearField===activeMathField){
+      resetClearConfirmation();
+      modifyMathField('clear');
+      toast('Campo limpo');
+      return;
+    }
+    resetClearConfirmation();
+    pendingClearField=activeMathField;
+    const btn=document.querySelector('[data-pad-action="clear"]');
+    if(btn){btn.textContent='Confirmar?';btn.classList.add('confirm-clear');btn.setAttribute('aria-label','Confirmar a limpeza deste campo')}
+    toast('Toque novamente em Confirmar? para limpar o campo');
+    pendingClearTimer=setTimeout(resetClearConfirmation,4000);
+  }
   function openMathPad(inp){
     if(!touchMathDevice()||!inp?.matches('[data-field]'))return;
+    if(activeMathField!==inp.dataset.field)resetClearConfirmation();
     activeMathField=inp.dataset.field;
     const area=AREAS.find(a=>a.fields.some(([id])=>id===activeMathField));
     const field=area?.fields.find(([id])=>id===activeMathField);
@@ -612,6 +642,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     requestAnimationFrame(()=>setTimeout(ensureMathInputVisible,65));
   }
   function closeMathPad(){
+    resetClearConfirmation();
     if(!$('math-pad').classList.contains('show'))return;
     $('math-pad').classList.remove('show');
     $('math-pad').setAttribute('aria-hidden','true');
@@ -636,12 +667,13 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     $('areas-container').addEventListener('focusin',e=>{if(e.target.matches('[data-field]'))openMathPad(e.target)});
     $('math-pad').addEventListener('click',e=>{
       const key=e.target.closest('[data-pad-key]'),action=e.target.closest('[data-pad-action]');
-      if(key){modifyMathField('insert',key.dataset.padKey);return}
+      if(key){resetClearConfirmation();modifyMathField('insert',key.dataset.padKey);return}
       if(!action)return;
       const a=action.dataset.padAction;
       if(a==='close'||a==='done'){closeMathPad();return}
-      if(a==='backspace'||a==='clear'){modifyMathField(a);return}
-      if(a==='next'){
+      if(a==='clear'){confirmClearMathField();return}
+      if(a==='backspace'){resetClearConfirmation();modifyMathField(a);return}
+      if(a==='next'){resetClearConfirmation();
         const all=AREAS.flatMap(area=>area.fields.map(([id])=>({id,area:area.id})));
         const index=all.findIndex(x=>x.id===activeMathField);
         const next=all[(index+1)%all.length];
@@ -769,7 +801,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
   function setup(){readStorage();loadHistory();renderDateTime();render();setupMathPad();setupDashboard();
     $('areas-container').addEventListener('click',e=>{const t=e.target.closest('[data-area-toggle]');if(t){const id=t.dataset.areaToggle;open[id]=!open[id];if(open[id])active=id;updateOpenState();return}const plus=e.target.closest('[data-plus]');if(plus){const id=plus.dataset.plus,inp=$('input-'+id);if(!inp)return;const pos=inp.selectionStart??inp.value.length;const end=inp.selectionEnd??pos;const start=inp.value.slice(0,pos),endtext=inp.value.slice(end);const v=start&&/\d$/.test(start)?'+':'';if(v){inp.value=start+v+endtext;inp.setSelectionRange(pos+1,pos+1);inp.dispatchEvent(new Event('input',{bubbles:true}))}inp.focus()}});
     $('areas-container').addEventListener('keydown',e=>{const t=e.target.closest('[data-area-toggle]');if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();t.click()}});
-    $('areas-container').addEventListener('input',e=>{if(!e.target.matches('[data-field]'))return;const id=e.target.dataset.field;state.values[id]=e.target.value;resizeMathField(e.target);save();refreshAll(id);if(activeMathField===id)updateMathPadResult();if(!$('dashboard-modal').classList.contains('hidden'))renderDashboard()});
+    $('areas-container').addEventListener('input',e=>{if(!e.target.matches('[data-field]'))return;const id=e.target.dataset.field;state.values[id]=e.target.value;resizeMathField(e.target);save();refreshAll(id);if(pendingClearField)resetClearConfirmation();if(activeMathField===id)updateMathPadResult();if(!$('dashboard-modal').classList.contains('hidden'))renderDashboard()});
     $('tabs-container').addEventListener('click',e=>{const tab=e.target.closest('[data-tab]');if(tab)setActive(tab.dataset.tab,true)});
     function setupPicker(buttonId,inputId,type){const btn=$(buttonId),inp=$(inputId);btn.addEventListener('click',()=>{try{inp.showPicker?inp.showPicker():inp.click()}catch(e){inp.click()}});inp.addEventListener('change',()=>{if(inp.value){if(type==='date')switchDate(inp.value);else{state.time=inp.value;renderDateTime();save({record:false})}}})}
     setupPicker('date-trigger-btn','hidden-date-input','date');setupPicker('time-trigger-btn','hidden-time-input','time');

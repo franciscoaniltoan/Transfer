@@ -80,6 +80,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
 .dashboard-note{padding:11px;margin-top:12px;border:1px solid #3c5880;border-radius:12px;color:#afc6e8;font-size:10px;line-height:1.55}
 @media(max-width:360px){.dashboard-launch{padding:10px 9px;gap:7px}.dashboard-launch strong{font-size:13px}.dashboard-launch small{font-size:9px}.dashboard-kpi{padding:10px}.dashboard-kpi strong{font-size:22px}}
 
+.dashboard-heat-detail{margin:8px 0 0;font-size:10px;line-height:1.4;color:#cae3ff}.dashboard-heat-cell{padding:0;cursor:pointer}.dashboard-heat-cell:focus-visible{outline:2px solid #fff;outline-offset:1px}
 </style>
 </head>
 <body>
@@ -144,7 +145,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
           <div id="dashboard-areas"></div>
         </div>
         <div class="dashboard-block">
-          <div class="dashboard-block-head"><div><h3>Mapa de calor da atividade</h3><p>Variação líquida da contagem por área e hora; correções podem reduzir volumes.</p></div></div>
+          <div class="dashboard-block-head"><div><h3>Calor produtivo por área</h3><p>Variação líquida da contagem por área e hora; correções podem reduzir volumes.</p></div></div>
           <div id="dashboard-heat"></div>
         </div>
         <div class="dashboard-block">
@@ -542,10 +543,10 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
         const level=diff>0?Math.min(4,Math.max(1,Math.ceil(diff/max*4))):0;
         const color=diff<0?'#8053ac':levels[level];
         const title=esc(a.title)+' · '+timeline.labels[i]+'h · '+(diff>0?'+':'')+fmt(diff)+' volumes';
-        cells+='<div class="dashboard-heat-cell" title="'+title+'" aria-label="'+title+'" style="background:'+color+'"></div>';
+        cells+='<button type="button" class="dashboard-heat-cell" data-heat-detail="'+title+'" title="'+title+'" aria-label="'+title+'" style="background:'+color+'"></button>';
       }
     }
-    return '<div class="dashboard-heat-wrap"><div class="dashboard-heat" style="grid-template-columns:67px repeat('+timeline.labels.length+',minmax(25px,1fr));">'+cells+'</div></div><div class="dashboard-heat-legend">Menor atividade '+levels.map(c=>'<span class="dashboard-color" style="background:'+c+'"></span>').join('')+' Maior atividade <span class="dashboard-color" style="background:#8053ac"></span> Redução/correção</div>';
+    return '<div class="dashboard-heat-wrap"><div class="dashboard-heat" style="grid-template-columns:67px repeat('+timeline.labels.length+',minmax(25px,1fr));">'+cells+'</div></div><div class="dashboard-heat-legend">Menor atividade '+levels.map(c=>'<span class="dashboard-color" style="background:'+c+'"></span>').join('')+' Maior atividade <span class="dashboard-color" style="background:#8053ac"></span> Redução/correção</div><p class="dashboard-heat-detail" id="dashboard-heat-detail">Toque em uma célula para ver a variação daquele horário.</p>';
   }
   function renderDashboard(){
     const panel=$('dashboard-modal');if(!panel)return;
@@ -561,7 +562,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     }
     const kpis=[
       ['TOTAL DAS ÁREAS',fmt(current),'Fora de Buffer: '+fmt(currentTotals.buffer||0)],
-      ['MOVIMENTO DA ÚLTIMA HORA',lastDiff===null?'—':(lastDiff>0?'+':'')+fmt(lastDiff),timeline.observed?'Variação líquida da última hora com registro':'Sem observações horárias'],
+      ['ÚLTIMA HORA REGISTRADA',lastDiff===null?'—':(lastDiff>0?'+':'')+fmt(lastDiff),timeline.observed?'Variação líquida da última hora com alterações':'Sem observações horárias'],
       ['ÁREAS COM VOLUMES',DASH_AREAS().filter(a=>currentTotals[a.id]>0).length+' / '+DASH_AREAS().length,'Setores com contagem positiva'],
       ['OCUPAÇÃO GLOBAL',known===DASH_AREAS().length&&cap>0?fmt(Math.round(current/cap*1000)/10)+'%':'—',known+' de '+DASH_AREAS().length+' capacidades cadastradas']
     ];
@@ -579,6 +580,7 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     $('dashboard-modal').addEventListener('click',e=>{if(e.target===$('dashboard-modal'))closeDashboard()});
     $('dashboard-date').addEventListener('change',e=>switchDate(e.target.value));
     $('dashboard-saved-dates').addEventListener('click',e=>{const b=e.target.closest('[data-history-date]');if(b)switchDate(b.dataset.historyDate)});
+    $('dashboard-heat').addEventListener('click',e=>{const cell=e.target.closest('[data-heat-detail]');if(cell&&$('dashboard-heat-detail'))$('dashboard-heat-detail').textContent=cell.dataset.heatDetail});
     $('dashboard-areas').addEventListener('change',e=>{
       const inp=e.target.closest('[data-dashboard-cap]');if(!inp)return;
       const n=Number(inp.value);

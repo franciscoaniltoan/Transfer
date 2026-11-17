@@ -111,6 +111,41 @@
 
 @media(min-width:690px){.hero{padding-left:30px;padding-right:30px}.hero .wrap{display:grid;grid-template-columns:1fr 330px;align-items:end;gap:15px}.eyebrow{grid-column:1/-1}.hero h1{margin-top:0}.time-row{margin-top:0}.summary{width:min(1020px,100%);margin:-22px auto 0;padding:0 18px}.sections{grid-template-columns:1fr 1fr;gap:14px}.content{padding-left:18px;padding-right:18px}.sector[data-sector="esteiras"] .fields{grid-template-columns:1fr}.dock-inner{grid-template-columns:auto auto;justify-content:space-between}.dock .primary{min-width:230px}.keypad{left:auto;right:18px;width:385px;border-radius:20px 20px 0 0}.keypad-open .toast{bottom:370px}}
 @media(max-width:355px){.summary-main{padding:14px}.summary-main .label{font-size:10px}.total-big{font-size:29px}.mini{padding:10px 8px}.mini span{font-size:9px}.sector-head{padding:14px 12px}.fields{padding:0 12px 13px}.sector-icon{width:38px;height:38px;flex-basis:38px}.sector-info h3{font-size:14px}}
+
+/* Layout aprovado: cabeçalho forte, cartões compactos e ações rápidas */
+.sector{background:var(--section-panel);border:1px solid var(--section-color);border-top:0;border-radius:22px;box-shadow:0 10px 25px rgba(28,55,102,.11)}
+.sector-head{min-height:100px;background:linear-gradient(125deg,var(--section-dark),var(--section-color));color:#fff;border:0;padding:15px 14px;gap:11px}
+.sector-head::after{display:none}
+.sector-info h3{color:#fff;font-size:19px}
+.sector-info p{color:#fff;opacity:.82}
+.sector .sector-icon{background:rgba(255,255,255,.15)!important;border:1px solid rgba(255,255,255,.45);box-shadow:none;font-size:22px;width:49px;height:49px;flex-basis:49px}
+.sector-total{border:0;background:#fff;min-width:77px}
+.sector-total span{color:var(--section-dark);opacity:1}
+.sector-total strong{color:var(--section-dark)}
+.sector .fields{padding:11px 11px 8px;gap:9px}
+.sector .field{display:grid;grid-template-columns:46px minmax(0,1fr);column-gap:10px;align-items:center;padding:10px 10px 10px 9px;border-left-width:4px;border-radius:17px}
+.sector .field-name{grid-column:2;grid-row:1;min-height:29px;margin-bottom:5px}
+.sector .field-name label{font-size:15px}
+.sector .field-name label::before{display:none}
+.sector .field-name label::after{content:"";width:4px;height:17px;background:var(--field-main);border-radius:6px;order:-1}
+.sector .field .result{min-height:32px;font-size:17px}
+.sector .field-area{grid-column:2;grid-row:2}
+.sector .field textarea{min-height:47px;padding:10px 36px 9px 11px;border-radius:12px}
+.sector .field-error{grid-column:2}
+.field-symbol{grid-column:1;grid-row:1 / span 2;width:44px;height:44px;display:grid;place-items:center;align-self:center;background:var(--field-main);color:#fff;border-radius:13px;font-size:23px;box-shadow:0 3px 9px rgba(25,48,85,.13)}
+.sector .sector-foot{background:rgba(255,255,255,.45);border-radius:12px;padding:9px 11px;margin:0 11px 10px}
+.sector-toggle{display:flex;align-items:center;justify-content:center;flex:0 0 25px;width:25px;height:32px;color:#fff;background:transparent;border:0;font-size:19px;cursor:pointer}
+.sector.collapsed .fields,.sector.collapsed .sector-foot{display:none}
+.sector.collapsed .sector-toggle{transform:rotate(-90deg)}
+.tab.active{background:#1c54c6!important;color:#fff!important;border-color:#1c54c6!important}
+.dock-inner{grid-template-columns:minmax(85px,1fr) 52px 52px minmax(125px,1.6fr);gap:7px}
+.dock-total{font-size:9px}
+.dock-total strong{font-size:23px}
+.dock-action{height:49px;border:1px solid #d9e4f7;background:#f3f6ff;color:#204a9d;border-radius:12px;font-size:21px;display:grid;place-items:center}
+.dock .primary{min-width:0;padding:0 8px;font-size:12px}
+@media(min-width:690px){.dock-inner{grid-template-columns:1fr 60px 60px 220px}.dock .primary{min-width:0}}
+@media(max-width:355px){.sector .field{grid-template-columns:38px minmax(0,1fr);gap:7px;padding:8px}.field-symbol{width:37px;height:37px;font-size:19px}.sector .sector-head{padding:12px 9px}.sector-info h3{font-size:16px}.dock-inner{grid-template-columns:minmax(62px,1fr) 43px 43px minmax(104px,1.5fr);gap:5px}.dock-action{height:45px}.dock .primary{font-size:11px}}
+
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 @media print{.hero{color:white;-webkit-print-color-adjust:exact;print-color-adjust:exact}.dock,.keypad,.tabs,.tools,.status,.helper,.edit-indicator{display:none!important}.content{padding-bottom:0}.sectors,.sector{break-inside:avoid}.sections{grid-template-columns:1fr 1fr}.summary{margin:10px auto}.field textarea{min-height:40px}}
 </style>
@@ -134,7 +169,7 @@
   <p class="helper"><strong>Como contar:</strong> use várias parcelas, como <strong>17+14+12+2+</strong>. O sinal + no final é permitido. O app funciona sem internet e exporta um PNG com todos os campos. <strong>Atenção:</strong> o total de rejeitos é parte da soma das áreas, não um valor adicional. Fora de Buffer fica separado.</p>
   </div>
 </main>
-<div class="dock" id="dock"><div class="dock-inner"><div class="dock-total">TOTAL DAS ÁREAS<strong id="dock-total">0</strong></div><button class="primary" id="export" type="button">↓ &nbsp; Exportar PNG</button></div></div>
+<div class="dock" id="dock"><div class="dock-inner"><div class="dock-total">TOTAL DAS ÁREAS<strong id="dock-total">0</strong></div><button class="dock-action" id="dock-copy" type="button" aria-label="Copiar resumo" title="Copiar resumo">▤</button><button class="dock-action" id="dock-share" type="button" aria-label="Compartilhar PNG" title="Compartilhar PNG">↗</button><button class="primary" id="export" type="button">↓ Exportar PNG</button></div></div>
 <div id="keypad" class="keypad" aria-label="Teclado numérico de contagem" aria-hidden="true"><div class="keypad-inner"><div class="keypad-head"><div class="keypad-label" id="keypad-label">Contagem</div><div class="keypad-sum" id="keypad-sum">0</div><button class="keypad-close" type="button" id="keypad-close" aria-label="Fechar teclado">×</button></div>
   <div class="pad-grid" id="pad-grid">
   <button class="pad-btn" type="button" data-key="7">7</button><button class="pad-btn" type="button" data-key="8">8</button><button class="pad-btn" type="button" data-key="9">9</button><button class="pad-btn operator plus" type="button" data-key="+">+</button>
@@ -178,9 +213,9 @@
   }
   function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v==='object'){state.date=typeof v.date==='string'?v.date:'';state.time=typeof v.time==='string'?v.time:'';if(v.values&&typeof v.values==='object')state.values={...v.values}}}catch(e){}state.date=state.date||today();state.time=state.time||now()}
   function save(){try{localStorage.setItem(KEY,JSON.stringify(state));$('save-state').textContent='Salvo automaticamente neste aparelho'}catch(e){$('save-state').textContent='Salvamento local indisponível: faça um backup'}}
-  function build(){const root=$('sections');sectors.forEach(s=>{const card=document.createElement('article');card.className='sector';card.id='sector-'+s.id;card.dataset.sector=s.id;card.innerHTML='<div class="sector-head"><div class="sector-icon"></div><div class="sector-info"><h3></h3><p></p></div><div class="sector-total"><span>SUBTOTAL</span><strong id="total-'+s.id+'">0</strong></div></div><div class="fields"></div><div class="sector-foot"><span>Campos independentes</span><b>'+s.fields.length+' '+(s.fields.length===1?'seção':'seções')+'</b></div>';
-     card.querySelector('.sector-icon').textContent=s.icon;card.querySelector('h3').textContent=s.title;card.querySelector('.sector-info p').textContent=s.caption;const fields=card.querySelector('.fields');s.fields.forEach(([id,name])=>{FIELDS.push(id);const f=document.createElement('div');f.className='field';f.dataset.kind=name==='Gaiolas'?'gaiolas':name==='Scuttles'?'scuttles':name==='Rejeito'?'rejeito':name==='Grid Verde'?'grid-verde':name==='Grid Azul'?'grid-azul':name==='Big'?'big':'outros';f.innerHTML='<div class="field-name"><label></label><output class="result">0</output></div><div class="field-area"><textarea rows="1" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Ex.: 17+14+12+"></textarea><span class="edit-indicator" aria-hidden="true">⌗</span></div><div class="field-error"></div>';
-       f.querySelector('label').textContent=name;f.querySelector('label').htmlFor=id;const ta=f.querySelector('textarea');ta.id=id;ta.dataset.field=id;ta.dataset.label=s.title+' · '+name;ta.value=state.values[id]||'';ta.inputMode=mobilePad()?'none':'text';const out=f.querySelector('output');out.id='sum-'+id;out.htmlFor=id;const err=f.querySelector('.field-error');err.id='error-'+id;
+  function build(){const root=$('sections');sectors.forEach(s=>{const card=document.createElement('article');card.className='sector';card.id='sector-'+s.id;card.dataset.sector=s.id;card.innerHTML='<div class="sector-head"><div class="sector-icon"></div><div class="sector-info"><h3></h3><p></p></div><div class="sector-total"><span>SUBTOTAL</span><strong id="total-'+s.id+'">0</strong></div><button type="button" class="sector-toggle" aria-label="Recolher ou expandir setor" aria-expanded="true">⌄</button></div><div class="fields"></div><div class="sector-foot"><span>Campos independentes</span><b>'+s.fields.length+' '+(s.fields.length===1?'seção':'seções')+'</b></div>';
+     card.querySelector('.sector-icon').textContent=({cd:'▦',ptl:'⇄',ab:'▦',java:'♻',esteiras:'≋',contingencia:'⚙',buffer:'▤'})[s.id]||s.icon;const toggle=card.querySelector('.sector-toggle');toggle.addEventListener('click',()=>{const collapsed=card.classList.toggle('collapsed');toggle.setAttribute('aria-expanded',String(!collapsed));toggle.setAttribute('aria-label',collapsed?'Expandir '+s.title:'Recolher '+s.title)});card.querySelector('h3').textContent=s.title;card.querySelector('.sector-info p').textContent=s.caption;const fields=card.querySelector('.fields');s.fields.forEach(([id,name])=>{FIELDS.push(id);const f=document.createElement('div');f.className='field';f.dataset.kind=name==='Gaiolas'?'gaiolas':name==='Scuttles'?'scuttles':name==='Rejeito'?'rejeito':name==='Grid Verde'?'grid-verde':name==='Grid Azul'?'grid-azul':name==='Big'?'big':'outros';f.innerHTML='<span class="field-symbol" aria-hidden="true"></span><div class="field-name"><label></label><output class="result">0</output></div><div class="field-area"><textarea rows="1" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Ex.: 17+14+12+"></textarea><span class="edit-indicator" aria-hidden="true">⌗</span></div><div class="field-error"></div>';
+       f.querySelector('.field-symbol').textContent=({'Gaiolas':'▦','Scuttles':'▱','Rejeito':'♻','Grid Verde':'▥','Grid Azul':'▥','Big':'▣','PTL':'⇄','CN':'▤'})[name]||'∑';f.querySelector('label').textContent=name;f.querySelector('label').htmlFor=id;const ta=f.querySelector('textarea');ta.id=id;ta.dataset.field=id;ta.dataset.label=s.title+' · '+name;ta.value=state.values[id]||'';ta.inputMode=mobilePad()?'none':'text';const out=f.querySelector('output');out.id='sum-'+id;out.htmlFor=id;const err=f.querySelector('.field-error');err.id='error-'+id;
        ta.addEventListener('focus',()=>{if(nativeId!==id)preferNative=false;activeId=id;if(mobilePad()&&!preferNative)openPad(id)});ta.addEventListener('input',()=>{state.values[id]=ta.value;refresh();save();autoSize(ta)});f.querySelector('.field-area').addEventListener('click',()=>ta.focus());fields.append(f)});root.append(card)})}
   function mobilePad(){return window.matchMedia('(pointer:coarse)').matches || window.innerWidth<680}
   function autoSize(el){el.style.height='';el.style.height=Math.min(120,Math.max(57,el.scrollHeight))+'px'}
@@ -220,7 +255,7 @@
   async function restore(file){if(!file)return;try{let d=JSON.parse(await file.text());let v=d.state||d;if(!v||typeof v.values!=='object'||!v.values)throw Error('Formato não reconhecido');if(Object.values(state.values).some(v=>String(v||'').trim())&&!confirm('Substituir a contagem atual pelos dados do backup?'))return;state.values={};FIELDS.forEach(id=>{if(typeof v.values[id]==='string')state.values[id]=v.values[id]});state.date=typeof v.date==='string'?v.date:today();state.time=typeof v.time==='string'?v.time:now();closePad();sync();toast('Backup restaurado.')}catch(e){toast('Arquivo de backup inválido.')}finally{$('backup-file').value=''}}
   load();build();sync();
   $('date').addEventListener('change',e=>{state.date=e.target.value;save()});$('time').addEventListener('change',e=>{state.time=e.target.value;save()});
-  $('export').addEventListener('click',()=>exportPNG(false));$('share').addEventListener('click',()=>exportPNG(true));$('copy').addEventListener('click',copyText);
+  $('export').addEventListener('click',()=>exportPNG(false));$('share').addEventListener('click',()=>exportPNG(true));$('copy').addEventListener('click',copyText);$('dock-copy').addEventListener('click',copyText);$('dock-share').addEventListener('click',()=>exportPNG(true));
   $('backup').addEventListener('click',backup);$('restore').addEventListener('click',()=>$('backup-file').click());$('backup-file').addEventListener('change',e=>restore(e.target.files?.[0]));
   $('sample').addEventListener('click',()=>{if(Object.values(state.values).some(x=>String(x||'').trim())&&!confirm('Substituir os dados atuais pelo rascunho original?'))return;closePad();state.values={...sample};sync();toast('Rascunho carregado.')});
   $('clear').addEventListener('click',()=>{if(!confirm('Apagar todos os valores desta contagem?'))return;closePad();state.values={};state.date=today();state.time=now();sync();toast('Contagem limpa.')});

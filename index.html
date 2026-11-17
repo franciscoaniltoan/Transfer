@@ -63,6 +63,25 @@
 .tab.active{box-shadow:inset 0 0 0 2px currentColor}
 @media(max-width:355px){.sector .fields{padding-left:11px;padding-right:11px}.field{padding:10px 9px}.field-name label{font-size:13px}}
 
+
+/* Camada externa mais saturada para enquadrar os cartões internos */
+.sector{--section-panel:#dce6ff;background:var(--section-panel);border-width:1px;border-top-width:6px;box-shadow:0 9px 25px rgba(24,49,90,.11)}
+.sector[data-sector="ptl"]{--section-panel:#d1eef1}
+.sector[data-sector="ab"]{--section-panel:#f9e4c8}
+.sector[data-sector="java"]{--section-panel:#f7dbe2}
+.sector[data-sector="esteiras"]{--section-panel:#d5efdf}
+.sector[data-sector="contingencia"]{--section-panel:#e9d9f3}
+.sector[data-sector="buffer"]{--section-panel:#dce4f0}
+.sector-head{background:transparent;border-bottom-color:var(--section-border);padding:12px 14px}
+.sector .fields{padding:12px 13px 10px;gap:9px}
+.sector .field{padding:10px 11px 11px;border-radius:14px;box-shadow:0 2px 6px rgba(23,50,89,.04)}
+.sector .field-name{margin-bottom:7px}
+.sector .field textarea{min-height:52px;padding-top:12px;padding-bottom:10px}
+.sector .field-name label::before{width:25px;height:25px;flex-basis:25px}
+.sector .sector-foot{margin:0 13px;padding:9px 0 10px}
+.sector .sector-total{background:#fff}
+@media(max-width:355px){.sector .fields{padding-left:10px;padding-right:10px}.sector .field{padding:9px}}
+
 @media(min-width:690px){.hero{padding-left:30px;padding-right:30px}.hero .wrap{display:grid;grid-template-columns:1fr 330px;align-items:end;gap:15px}.eyebrow{grid-column:1/-1}.hero h1{margin-top:0}.time-row{margin-top:0}.summary{width:min(1020px,100%);margin:-22px auto 0;padding:0 18px}.sections{grid-template-columns:1fr 1fr;gap:14px}.content{padding-left:18px;padding-right:18px}.sector[data-sector="esteiras"] .fields{grid-template-columns:1fr}.dock-inner{grid-template-columns:auto auto;justify-content:space-between}.dock .primary{min-width:230px}.keypad{left:auto;right:18px;width:385px;border-radius:20px 20px 0 0}.keypad-open .toast{bottom:370px}}
 @media(max-width:355px){.summary-main{padding:14px}.summary-main .label{font-size:10px}.total-big{font-size:29px}.mini{padding:10px 8px}.mini span{font-size:9px}.sector-head{padding:14px 12px}.fields{padding:0 12px 13px}.sector-icon{width:38px;height:38px;flex-basis:38px}.sector-info h3{font-size:14px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}

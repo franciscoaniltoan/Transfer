@@ -91,6 +91,24 @@
 .field[data-kind="grid-azul"] label::before{content:"A"}
 .field[data-kind="big"] label::before{content:"B"}
 
+
+/* Cabeçalhos v9: hierarquia clara, título destacado e resultado integrado */
+.sector-head{position:relative;min-height:94px;gap:11px;padding:14px 13px 13px;align-items:center}
+.sector-head::after{content:"";position:absolute;left:13px;right:13px;bottom:0;height:1px;background:var(--section-border)}
+.sector .sector-icon{width:46px;height:46px;flex-basis:46px;font-size:14px;border-radius:14px}
+.sector-info h3{font-size:17px;line-height:1.16;letter-spacing:-.4px;font-weight:900}
+.sector-info p{font-size:11px;margin-top:5px;color:var(--section-dark);opacity:.75;font-weight:600}
+.sector-total{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:77px;min-height:61px;padding:6px 8px;border:1px solid var(--section-border);border-radius:14px;box-shadow:0 2px 5px rgba(23,50,89,.04)}
+.sector-total span{font-size:9px;letter-spacing:.05em;color:var(--section-dark);opacity:.72}
+.sector-total strong{font-size:25px;line-height:1.12;margin-top:3px}
+.sector .field-name{min-height:37px;margin-bottom:7px;align-items:center}
+.sector .field-name label{font-size:15px;letter-spacing:-.25px;line-height:1.2;gap:9px}
+.sector .field-name label::before{width:32px;height:32px;flex:0 0 32px;border-radius:10px;font-size:14px;box-shadow:0 2px 6px rgba(25,48,85,.12)}
+.sector .field .result{min-width:55px;min-height:36px;display:grid;place-items:center;border-radius:11px;font-size:17px;font-weight:900;box-shadow:0 1px 4px rgba(25,48,85,.04)}
+.sector .field{padding:10px 12px 11px}
+.sector .field textarea{min-height:53px}
+@media(max-width:355px){.sector-head{gap:8px;padding-left:10px;padding-right:10px}.sector-info h3{font-size:15px}.sector .sector-icon{width:40px;height:40px;flex-basis:40px}.sector-total{min-width:66px}.sector .field-name label{font-size:14px}}
+
 @media(min-width:690px){.hero{padding-left:30px;padding-right:30px}.hero .wrap{display:grid;grid-template-columns:1fr 330px;align-items:end;gap:15px}.eyebrow{grid-column:1/-1}.hero h1{margin-top:0}.time-row{margin-top:0}.summary{width:min(1020px,100%);margin:-22px auto 0;padding:0 18px}.sections{grid-template-columns:1fr 1fr;gap:14px}.content{padding-left:18px;padding-right:18px}.sector[data-sector="esteiras"] .fields{grid-template-columns:1fr}.dock-inner{grid-template-columns:auto auto;justify-content:space-between}.dock .primary{min-width:230px}.keypad{left:auto;right:18px;width:385px;border-radius:20px 20px 0 0}.keypad-open .toast{bottom:370px}}
 @media(max-width:355px){.summary-main{padding:14px}.summary-main .label{font-size:10px}.total-big{font-size:29px}.mini{padding:10px 8px}.mini span{font-size:9px}.sector-head{padding:14px 12px}.fields{padding:0 12px 13px}.sector-icon{width:38px;height:38px;flex-basis:38px}.sector-info h3{font-size:14px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}

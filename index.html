@@ -47,6 +47,39 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
 @media(max-height:670px){.math-pad-key{height:39px}.math-pad{padding-top:7px}.math-pad-top{margin-bottom:7px}.math-pad-help{margin-top:5px}}
 @media(prefers-reduced-motion:reduce){.math-pad{transition:none}}
 
+
+/* Dashboard de ocupação, histórico e calor de atividade */
+.dashboard-launch{display:flex;align-items:center;gap:11px;width:100%;margin:4px 0 15px;padding:11px 13px;border:1px solid #70a9ff70;border-radius:16px;background:linear-gradient(112deg,#183e84,#102d60 68%,#0a2148);box-shadow:inset 0 1px 0 #ffffff26,0 5px 17px #03112b6b;color:#fff;text-align:left}
+.dashboard-launch svg{width:25px;height:25px;stroke:#a2d3ff;fill:none;stroke-width:2;flex:0 0 25px}
+.dashboard-launch strong{display:block;font-size:14px;font-weight:900}.dashboard-launch small{display:block;margin-top:2px;color:#b5d4ff;font-size:10px;font-weight:550}
+.dashboard-launch .dashboard-go{margin-left:auto;font-size:12px;font-weight:800;white-space:nowrap;color:#c4e4ff}
+.dashboard-overlay{position:fixed;inset:0;z-index:75;display:flex;align-items:stretch;justify-content:center;background:#010819eb;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.dashboard-overlay.hidden{display:none}
+.dashboard-panel{display:flex;flex-direction:column;width:min(100%,560px);min-height:0;background:linear-gradient(180deg,#0b1e43,#07152f 58%,#05112a);border-left:1px solid #375b9a66;border-right:1px solid #375b9a66;color:#fff}
+.dashboard-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto;padding:calc(17px + env(safe-area-inset-top,0px)) 17px 14px;background:linear-gradient(115deg,#1648a3,#092e75);border-bottom:1px solid #90baff40}
+.dashboard-eyebrow{display:block;color:#aaccff;font-size:9px;letter-spacing:.13em;font-weight:900}.dashboard-header h2{font-size:21px;line-height:1.25;margin:4px 0 0}.dashboard-header p{font-size:11px;color:#d6e6ff;margin:3px 0 0}
+.dashboard-close{border:1px solid #ffffff45;border-radius:13px;background:#ffffff22;color:#fff;width:43px;height:43px;font-size:25px;flex:0 0 43px}
+.dashboard-scroll{flex:1;overflow:auto;padding:14px 12px calc(35px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
+.dashboard-day-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;padding:10px;border:1px solid #365998;background:#102c5e;border-radius:14px}
+.dashboard-day-row label{color:#d2e5ff;font-size:11px;font-weight:850}.dashboard-day-row input{width:146px;min-width:0;border:1px solid #628dd3;border-radius:10px;background:#173d7d;color:#fff;padding:8px 7px;font-size:13px;font-weight:750;color-scheme:dark}
+.dashboard-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.dashboard-kpi{border:1px solid #345998;border-radius:15px;background:linear-gradient(145deg,#153a78,#0f2856);padding:13px;min-width:0}
+.dashboard-kpi small{display:block;font-size:9px;letter-spacing:.05em;font-weight:850;color:#abc9f4}.dashboard-kpi strong{display:block;margin-top:5px;font-size:26px;line-height:1.05;font-weight:900;overflow-wrap:anywhere}.dashboard-kpi span{display:block;margin-top:5px;font-size:10px;color:#a8c5ed;line-height:1.4}
+.dashboard-block{padding:13px;border:1px solid #304d7d;border-radius:17px;background:linear-gradient(135deg,#0f2a55,#0b2147);margin-top:11px;box-shadow:0 6px 19px #020c2370}
+.dashboard-block-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}.dashboard-block-head h3{font-size:14px;font-weight:900;margin:0;color:#f3f8ff}.dashboard-block-head p{font-size:10px;line-height:1.45;color:#9fbee9;margin:4px 0 0}
+.dashboard-chart-holder{width:100%;overflow:hidden}.dashboard-chart-holder svg{width:100%;height:auto;max-height:235px;display:block;overflow:visible}
+.dashboard-empty{padding:22px 9px;border:1px dashed #446798;border-radius:12px;text-align:center;color:#bdd2f1;font-size:12px;line-height:1.55}
+.dashboard-bar-row{margin:12px 0}.dashboard-bar-top{display:flex;justify-content:space-between;align-items:center;gap:7px;margin-bottom:6px;font-size:11px}.dashboard-bar-top strong{font-size:12px;color:#ecf5ff}.dashboard-bar-top span{color:#d1e2ff;font-size:11px;font-variant-numeric:tabular-nums}
+.dashboard-track{height:11px;border-radius:999px;background:#071733;border:1px solid #ffffff17;overflow:hidden}.dashboard-fill{height:100%;min-width:0;border-radius:999px;box-shadow:inset 0 1px 0 #ffffff40}
+.dashboard-bar-meta{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:6px;font-size:10px;color:#aec5e6}
+.dashboard-capacity{display:flex;align-items:center;gap:5px}.dashboard-capacity input{width:65px;min-height:28px;border:1px solid #426ba8;border-radius:8px;padding:4px 6px;color:#fff;background:#071d44;font-size:11px;text-align:right}
+.dashboard-buffer{border-top:1px dashed #46699a;margin-top:12px;padding-top:10px;display:flex;justify-content:space-between;align-items:center;color:#b9d4ef;font-size:11px}.dashboard-buffer strong{color:#fff;font-size:14px}
+.dashboard-heat-wrap{width:100%;overflow-x:auto;padding-bottom:5px}.dashboard-heat{display:grid;gap:5px;align-items:center;min-width:max-content}.dashboard-heat-label{font-size:9px;color:#d4e3fc;white-space:nowrap;padding-right:4px}.dashboard-heat-hour{text-align:center;color:#c1d7f3;font-size:9px}.dashboard-heat-cell{height:24px;min-width:24px;border-radius:6px;border:1px solid #ffffff14;position:relative}.dashboard-heat-legend{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:11px;color:#a8c3e6;font-size:9px}
+.dashboard-color{display:inline-block;width:14px;height:12px;border-radius:3px;border:1px solid #ffffff22}
+.dashboard-history-list{display:flex;flex-wrap:wrap;gap:7px}.dashboard-history-date{padding:8px 11px;border:1px solid #44699f;background:#153262;color:#d6e7ff;border-radius:10px;font-size:11px;font-weight:800}.dashboard-history-date.current{background:#1967df;border-color:#74b0ff;color:#fff}
+.dashboard-note{padding:11px;margin-top:12px;border:1px solid #3c5880;border-radius:12px;color:#afc6e8;font-size:10px;line-height:1.55}
+@media(max-width:360px){.dashboard-launch{padding:10px 9px;gap:7px}.dashboard-launch strong{font-size:13px}.dashboard-launch small{font-size:9px}.dashboard-kpi{padding:10px}.dashboard-kpi strong{font-size:22px}}
+
 </style>
 </head>
 <body>
@@ -72,6 +105,12 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
       </div>
     </header>
     <nav class="tabs-scroll" id="tabs-container" aria-label="Navegação rápida por setores"></nav>
+    <button type="button" id="btn-dashboard" class="dashboard-launch" aria-label="Abrir dashboard de evolução e ocupação">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 24V14h5v10M12 24V9h5v15M20 24V4h5v20M3 24h22"/></svg>
+      <span><strong>Dashboard Operacional</strong><small>Ocupação, evolução por hora e mapa de calor</small></span>
+      <span class="dashboard-go">ABRIR ›</span>
+    </button>
+
     <main class="areas-container" id="areas-container"></main>
     <div class="tools-row"><button type="button" id="btn-backup">Salvar backup</button><button type="button" id="btn-restore">Restaurar backup</button><button type="button" id="btn-rascunho">Carregar exemplo</button></div>
     <input type="file" id="backup-file" accept=".json,application/json" hidden>
@@ -86,6 +125,37 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
       <button type="button" class="action-btn-primary" id="btn-exportar-png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg><span id="export-label">Exportar PNG</span></button>
     </div>
   </footer>
+
+  <section id="dashboard-modal" class="dashboard-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="dashboard-title">
+    <div class="dashboard-panel">
+      <header class="dashboard-header">
+        <div><span class="dashboard-eyebrow">CONTAGEM SOC · ANALYTICS</span><h2 id="dashboard-title">Dashboard Operacional</h2><p>Distribuição, histórico e intensidade de alterações</p></div>
+        <button type="button" class="dashboard-close" id="dashboard-close" aria-label="Fechar dashboard">×</button>
+      </header>
+      <div class="dashboard-scroll">
+        <div class="dashboard-day-row"><label for="dashboard-date">Data da contagem</label><input type="date" id="dashboard-date" aria-label="Data do dashboard"></div>
+        <div class="dashboard-kpis" id="dashboard-kpis"></div>
+        <div class="dashboard-block">
+          <div class="dashboard-block-head"><div><h3>Progressão hora a hora</h3><p>Último total registrado em cada hora, com continuidade do período anterior.</p></div></div>
+          <div class="dashboard-chart-holder" id="dashboard-hours"></div>
+        </div>
+        <div class="dashboard-block">
+          <div class="dashboard-block-head"><div><h3>Comparação entre áreas</h3><p>Informe a capacidade para visualizar ocupação percentual; sem capacidade, mostramos participação no total.</p></div></div>
+          <div id="dashboard-areas"></div>
+        </div>
+        <div class="dashboard-block">
+          <div class="dashboard-block-head"><div><h3>Mapa de calor da atividade</h3><p>Variação líquida da contagem por área e hora; correções podem reduzir volumes.</p></div></div>
+          <div id="dashboard-heat"></div>
+        </div>
+        <div class="dashboard-block">
+          <div class="dashboard-block-head"><div><h3>Histórico por data</h3><p>Selecione uma data salva para recuperar sua contagem independente.</p></div></div>
+          <div id="dashboard-saved-dates"></div>
+        </div>
+        <div class="dashboard-note">Os registros horários são feitos automaticamente no aparelho quando você altera uma contagem na data atual. Dias importados de versões antigas não recebem horários inventados. O mapa de calor mede variações registradas, não produtividade ou fluxo físico em tempo real. Os dados ficam salvos neste navegador.</div>
+      </div>
+    </div>
+  </section>
+
   <div id="summary-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
     <div class="modal-panel">
       <header class="modal-header"><div><h2 id="modal-heading">Resumo da Contagem</h2><p id="modal-subtitle-date">Consolidado por área e seção</p></div><button id="close-modal-btn" class="close-modal" aria-label="Fechar resumo">×</button></header>
@@ -117,6 +187,8 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
   'use strict';
   const STORAGE_KEY = 'contagem-soc-v1'; // mesma chave da versão anterior: preserva valores no PWA
   const LEGACY_GEMINI_KEY = 'contagem_soc_volumes_v1';
+  const HISTORY_KEY = 'contagem-soc-history-v1';
+
   const $ = id => document.getElementById(id);
   const numberFormat = new Intl.NumberFormat('pt-BR', {maximumFractionDigits: 2});
   const fmt = num => numberFormat.format(num || 0);
@@ -202,7 +274,76 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     // Compatibilidade com o protótipo fornecido pelo usuário (dados agrupados por área).
     try{const old=JSON.parse(localStorage.getItem(LEGACY_GEMINI_KEY)||'null');if(old&&old.values){for(const area of AREAS){for(const [field,,kind] of area.fields){const v=old.values?.[area.id]?.[kind];if(typeof v==='string')state.values[field]=v}}if(old.customDate&&/^\d{2}\/\d{2}\/\d{4}$/.test(old.customDate)){const [d,m,y]=old.customDate.split('/');state.date=`${y}-${m}-${d}`}}}catch(e){}
   }
-  function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){toast('Salvamento indisponível; faça um backup')}}
+
+  // Histórico por dia. Uma data nunca carrega nem sobrescreve os campos de outra.
+  // O marco inicial de dados migrados é mantido sem atribuir um horário fictício.
+  let history={version:1,days:{},capacities:{},activeDate:null};
+  function areaTotalsFrom(values){
+    const totals={};
+    for(const area of AREAS){totals[area.id]=0;for(const [id] of area.fields)totals[area.id]+=calculate((values||{})[id]||'').value}
+    return totals;
+  }
+  function makeHistoryDay(values={},imported=false){
+    return {values:{...values},baseline:areaTotalsFrom(values),hours:{},imported:Boolean(imported),updatedAt:null};
+  }
+  function historyDay(date){
+    if(!history.days[date])history.days[date]=makeHistoryDay({},false);
+    const day=history.days[date];
+    if(!day.values||typeof day.values!=='object')day.values={};
+    if(!day.baseline||typeof day.baseline!=='object')day.baseline=areaTotalsFrom(day.values);
+    if(!day.hours||typeof day.hours!=='object')day.hours={};
+    return day;
+  }
+  function loadHistory(){
+    let loaded=null;
+    try{loaded=JSON.parse(localStorage.getItem(HISTORY_KEY)||'null')}catch(e){console.warn('Histórico ilegível',e)}
+    if(loaded&&loaded.days&&typeof loaded.days==='object'&&!Array.isArray(loaded.days)){
+      history={version:1,days:loaded.days,capacities:loaded.capacities&&typeof loaded.capacities==='object'?loaded.capacities:{},activeDate:loaded.activeDate||null};
+      state.date=cleanDate(history.activeDate||state.date);
+      state.values={...historyDay(state.date).values};
+    }else{
+      const existing={...state.values};
+      const oldHasValues=Object.values(existing).some(v=>String(v||'').trim());
+      history.days[state.date]=makeHistoryDay(existing,oldHasValues);
+      history.activeDate=state.date;
+    }
+    save({record:false});
+  }
+  function save(options={}){
+    const day=historyDay(state.date);
+    const changed=JSON.stringify(day.values)!==JSON.stringify(state.values);
+    day.values={...state.values};
+    if(changed){
+      day.updatedAt=new Date().toISOString();
+      // Somente edições de hoje têm observação horária real. A hora exibida no
+      // cabeçalho pode ser ajustada manualmente e não altera estes registros.
+      if(options.record!==false&&state.date===today()){
+        const n=new Date(),hour=String(n.getHours()).padStart(2,'0');
+        day.hours[hour]={observedAt:n.toISOString(),totals:areaTotalsFrom(state.values)};
+      }
+    }
+    history.activeDate=state.date;
+    try{
+      localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
+      // Mantida para compatibilidade com versões anteriores do aplicativo.
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    }catch(e){toast('Armazenamento cheio ou indisponível; exporte um backup')}
+  }
+  function switchDate(date){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date||''))return;
+    if(date===state.date){renderDashboard();return}
+    closeMathPad();
+    save({record:false});
+    state.date=date;
+    state.values={...historyDay(date).values};
+    history.activeDate=date;
+    save({record:false});
+    renderDateTime();
+    render();
+    renderDashboard();
+    toast('Contagem de '+date.slice(8,10)+'/'+date.slice(5,7)+'/'+date.slice(0,4)+' carregada');
+  }
+
   function toast(msg){const x=$('toast-banner');x.textContent=msg;x.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.remove('show'),2700)}
   function renderDateTime(){const [y,m,d]=state.date.split('-');$('header-date-text').textContent=`${d}/${m}/${y}`;$('header-time-text').textContent=state.time;$('hidden-date-input').value=state.date;$('hidden-time-input').value=state.time}
   function tabMarkup(area){return `<button type="button" class="tab-pill ${area.id===active?'active':''}" data-tab="${area.id}" aria-pressed="${area.id===active}">${esc(area.tab)}</button>`}
@@ -245,9 +386,26 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     const colors={cd:'#1968fa',ptl:'#0d999f',ab:'#df7b12',java:'#5652d4',esteiras:'#2b6ea8',contingencia:'#c92639',buffer:'#139e5f'};const pastel={gaiolas:'#d7e7ff',scuttles:'#c6f7e4',rejeito:'#fcd3da',ptl:'#dbf8fb',cn:'#e3eaff','grid-verde':'#c5f9d9','grid-azul':'#d0e8ff',big:'#ecd9ff',contingencia:'#f8dce5',buffer:'#e4f9ed'};for(const {area,rows,height} of layout){rounded(ctx,P,y,bodyW,height,16,'#0c2751','#45699f');rounded(ctx,P+1,y+1,bodyW-2,57,15,colors[area.id]);ctx.fillStyle='#fff';ctx.font='bold 23px Arial';ctx.fillText(area.title,P+20,y+37);ctx.textAlign='right';ctx.fillText(fmt(s.totals[area.id]),W-P-24,y+37);ctx.textAlign='left';let yy=y+67;for(const row of rows){rounded(ctx,P+12,yy,bodyW-24,row.h,11,pastel[row.kind]||'#edf4ff');ctx.fillStyle='#17345f';ctx.font='bold 18px Arial';ctx.fillText(row.label,P+25,yy+26);ctx.font='16px Arial';row.ls.forEach((line,i)=>ctx.fillText(line,P+205,yy+25+24*i));ctx.textAlign='right';ctx.fillStyle='#0e3766';ctx.font='bold 19px Arial';ctx.fillText(fmt(s.val[row.id]),W-P-29,yy+27);ctx.textAlign='left';yy+=row.h+6}y+=height+13}ctx.fillStyle='#d5e6ff';ctx.font='16px Arial';ctx.fillText('Rejeitos: '+fmt(s.rejects)+'   |   Fora de Buffer: '+fmt(s.totals.buffer)+' (separado)',P,H-42);ctx.fillText('Gerado localmente · Contagem SOC Mobile',P,H-20);return c}
   function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000)}
   async function exportPNG(share=false){const c=makePNG();if(!c)return;const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob){toast('Não foi possível gerar o PNG');return}const name='Contagem_SOC_'+state.date+'_'+state.time.replace(':','h')+'.png';if(share&&navigator.share&&navigator.canShare){const file=new File([blob],name,{type:'image/png'});if(navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Contagem SOC'});return}catch(e){if(e.name==='AbortError')return}}}downloadBlob(blob,name);toast(share?'PNG salvo para compartilhar':'PNG exportado')}
-  function backup(){const blob=new Blob([JSON.stringify({type:'ContagemSOC',version:3,state},null,2)],{type:'application/json'});downloadBlob(blob,'Contagem_SOC_backup_'+state.date+'.json');toast('Backup gerado')}
-  async function restore(file){if(!file)return;try{const data=JSON.parse(await file.text());const payload=data.state||data;if(!payload.values||typeof payload.values!=='object')throw Error('Formato inválido');if(Object.values(state.values).some(v=>String(v||'').trim())&&!confirm('Substituir os valores atuais pelos do backup?'))return;state.values={...payload.values};state.date=cleanDate(payload.date);state.time=cleanTime(payload.time);save();renderDateTime();render();toast('Backup restaurado')}catch(e){toast('Backup inválido')}finally{$('backup-file').value=''}}
-
+  function backup(){save({record:false});const blob=new Blob([JSON.stringify({type:'ContagemSOC',version:4,state,history},null,2)],{type:'application/json'});downloadBlob(blob,'Contagem_SOC_backup_'+state.date+'.json');toast('Backup gerado')}
+  async function restore(file){
+    if(!file)return;
+    try{
+      const data=JSON.parse(await file.text()),payload=data.state||data;
+      if(!payload.values||typeof payload.values!=='object')throw Error('Backup sem contagens');
+      if(Object.values(state.values).some(v=>String(v||'').trim())&&!confirm('Restaurar o backup? Os dados atuais serão substituídos.'))return;
+      if(data.history&&data.history.days&&typeof data.history.days==='object'){
+        history={version:1,days:data.history.days,capacities:data.history.capacities||{},activeDate:data.history.activeDate||null};
+        state.date=cleanDate(history.activeDate||payload.date);state.values={...historyDay(state.date).values};
+      }else{
+        // Backup antigo: restaurar apenas a data informada, preservando outros dias.
+        state.date=cleanDate(payload.date);state.values={...payload.values};
+        history.days[state.date]=makeHistoryDay(state.values,true);
+        history.activeDate=state.date;
+      }
+      state.time=cleanTime(payload.time);save({record:false});renderDateTime();render();renderDashboard();toast('Backup e histórico restaurados');
+    }catch(e){console.warn(e);toast('Não foi possível restaurar o backup')}
+    finally{$('backup-file').value=''}
+  }
   // O painel é mostrado somente em telas com toque; no desktop, permanece digitável por teclado físico.
   let activeMathField=null;
   const touchMathDevice=()=>window.matchMedia('(pointer:coarse)').matches || window.innerWidth<690;
@@ -323,18 +481,127 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMathPad()});
   }
 
-  function setup(){readStorage();renderDateTime();render();setupMathPad();
+
+  // Gráficos SVG são desenhados localmente, sem bibliotecas ou rede.
+  const DASH_COLORS={cd:'#398aff',ptl:'#17c5c0',ab:'#ff9c40',java:'#9d90ff',esteiras:'#67bfff',contingencia:'#ff617e',buffer:'#3fd59c'};
+  const DASH_AREAS=()=>AREAS.filter(a=>a.id!=='buffer');
+  function totalsOverall(totals){return DASH_AREAS().reduce((v,a)=>v+(Number(totals[a.id])||0),0)}
+  function dayTimeline(date){
+    const day=historyDay(date),hours=Object.keys(day.hours).filter(h=>/^\d{2}$/.test(h)&&Number(h)<=23).sort((a,b)=>Number(a)-Number(b));
+    if(!hours.length)return {labels:[],points:[],changes:[],observed:0};
+    const first=Number(hours[0]),lastObserved=Number(hours[hours.length-1]);
+    const end=date===today()?Math.max(lastObserved,new Date().getHours()):lastObserved;
+    const start=Math.max(0,Math.min(first,end-11));
+    const labels=[],points=[],changes=[];
+    let previous={...day.baseline};
+    for(let i=start;i<=end;i++){
+      const key=String(i).padStart(2,'0');
+      if(day.hours[key]){
+        const current=day.hours[key].totals||{};
+        const change={};for(const a of DASH_AREAS())change[a.id]=(Number(current[a.id])||0)-(Number(previous[a.id])||0);
+        previous={...current};changes.push(change);
+      }else changes.push({});
+      labels.push(key);
+      points.push({...previous});
+    }
+    return {labels,points,changes,observed:hours.length};
+  }
+  function dashboardProgressSvg(timeline){
+    if(!timeline.observed)return '<div class="dashboard-empty">Ainda não há registros de evolução horária nesta data.<br>Comece a contar para gerar o primeiro ponto.</div>';
+    const n=timeline.labels.length,w=560,h=212,left=18,right=12,top=27,bottom=31,usableH=h-top-bottom;
+    const vals=timeline.points.map(totalsOverall),max=Math.max(1,...vals);
+    const step=(w-left-right)/n,bw=Math.min(47,step*.69);
+    const grid=[0,.25,.5,.75,1].map(p=>'<line x1="'+left+'" y1="'+(top+usableH*(1-p))+'" x2="'+(w-right)+'" y2="'+(top+usableH*(1-p))+'" stroke="#ffffff20" stroke-dasharray="4 5"/>').join('');
+    const bars=vals.map((v,i)=>{
+      const height=usableH*v/max,x=left+step*i+(step-bw)/2,y=top+usableH-height;
+      const showLabel=n<=8||i%2===0||i===n-1;
+      return '<g><title>'+timeline.labels[i]+'h: '+fmt(v)+' volumes acumulados</title><rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(2,height).toFixed(1)+'" rx="5" fill="url(#socBar)"/>'+(showLabel?'<text x="'+(x+bw/2).toFixed(1)+'" y="'+(h-9)+'" text-anchor="middle" font-size="13" fill="#c4dcff">'+timeline.labels[i]+'h</text>':'')+(n<=7?'<text x="'+(x+bw/2).toFixed(1)+'" y="'+Math.max(14,y-7).toFixed(1)+'" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">'+fmt(v)+'</text>':'')+'</g>';
+    }).join('');
+    return '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Gráfico de volumes acumulados por hora"><defs><linearGradient id="socBar" x1="0" x2="0" y1="1" y2="0"><stop stop-color="#1550ba"/><stop offset="1" stop-color="#64b8ff"/></linearGradient></defs>'+grid+bars+'</svg>';
+  }
+  function dashboardCompare(totals){
+    const overall=totalsOverall(totals);
+    const configured=DASH_AREAS().every(a=>Number(history.capacities[a.id])>0);
+    const top='<p style="font-size:10px;color:#a7c5ed;margin:0 0 10px">'+(configured?'Todas as capacidades foram informadas.':'Capacidade opcional por setor; os demais mostram participação no volume total.')+'</p>';
+    const rows=DASH_AREAS().map(a=>{
+      const value=Number(totals[a.id])||0,capacity=Number(history.capacities[a.id])||0;
+      const pct=capacity>0?value/capacity*100:(overall>0?value/overall*100:0);
+      return '<div class="dashboard-bar-row"><div class="dashboard-bar-top"><strong>'+esc(a.title)+'</strong><span>'+fmt(value)+' volumes</span></div><div class="dashboard-track"><div class="dashboard-fill" style="width:'+Math.min(100,Math.max(0,pct)).toFixed(2)+'%;background:'+DASH_COLORS[a.id]+'"></div></div><div class="dashboard-bar-meta"><span>'+(capacity>0?fmt(Math.round(pct*10)/10)+'% da capacidade':fmt(Math.round(pct*10)/10)+'% do total')+'</span><label class="dashboard-capacity">Capacidade <input type="number" data-dashboard-cap="'+a.id+'" min="1" step="1" inputmode="numeric" placeholder="—" value="'+(capacity||'')+'" aria-label="Capacidade de '+esc(a.title)+'"></label></div></div>';
+    }).join('');
+    return top+rows+'<div class="dashboard-buffer"><span>Fora de Buffer · separado</span><strong>'+fmt(Number(totals.buffer)||0)+'</strong></div>';
+  }
+  function dashboardHeat(timeline){
+    if(!timeline.observed)return '<div class="dashboard-empty">O mapa de calor será preenchido quando houver alterações registradas neste dia.</div>';
+    const max=Math.max(1,...timeline.changes.flatMap(c=>DASH_AREAS().map(a=>Math.max(0,Number(c[a.id])||0))));
+    const levels=['#203356','#176272','#1d9d8c','#efb24f','#f16b43'];
+    let cells='<div></div>'+timeline.labels.map(h=>'<div class="dashboard-heat-hour">'+h+'h</div>').join('');
+    for(const a of DASH_AREAS()){
+      cells+='<div class="dashboard-heat-label">'+esc(a.tab)+'</div>';
+      for(let i=0;i<timeline.labels.length;i++){
+        const diff=Number(timeline.changes[i][a.id])||0;
+        const level=diff>0?Math.min(4,Math.max(1,Math.ceil(diff/max*4))):0;
+        const color=diff<0?'#8053ac':levels[level];
+        const title=esc(a.title)+' · '+timeline.labels[i]+'h · '+(diff>0?'+':'')+fmt(diff)+' volumes';
+        cells+='<div class="dashboard-heat-cell" title="'+title+'" aria-label="'+title+'" style="background:'+color+'"></div>';
+      }
+    }
+    return '<div class="dashboard-heat-wrap"><div class="dashboard-heat" style="grid-template-columns:67px repeat('+timeline.labels.length+',minmax(25px,1fr));">'+cells+'</div></div><div class="dashboard-heat-legend">Menor atividade '+levels.map(c=>'<span class="dashboard-color" style="background:'+c+'"></span>').join('')+' Maior atividade <span class="dashboard-color" style="background:#8053ac"></span> Redução/correção</div>';
+  }
+  function renderDashboard(){
+    const panel=$('dashboard-modal');if(!panel)return;
+    $('dashboard-date').value=state.date;
+    const days=Object.keys(history.days).filter(s=>/^\d{4}-\d{2}-\d{2}$/.test(s)).sort().reverse();
+    const d=historyDay(state.date),currentTotals=areaTotalsFrom(state.values),timeline=dayTimeline(state.date);
+    const current=totalsOverall(currentTotals),cap=DASH_AREAS().reduce((sum,a)=>sum+(Number(history.capacities[a.id])||0),0);
+    const known=DASH_AREAS().filter(a=>Number(history.capacities[a.id])>0).length;
+    let lastDiff=null;
+    if(timeline.observed){
+      const last=timeline.changes.reduce((v,c)=>Object.keys(c).length?totalsOverall(c):v,0);
+      lastDiff=last;
+    }
+    const kpis=[
+      ['TOTAL DAS ÁREAS',fmt(current),'Fora de Buffer: '+fmt(currentTotals.buffer||0)],
+      ['MOVIMENTO DA ÚLTIMA HORA',lastDiff===null?'—':(lastDiff>0?'+':'')+fmt(lastDiff),timeline.observed?'Variação líquida da última hora com registro':'Sem observações horárias'],
+      ['ÁREAS COM VOLUMES',DASH_AREAS().filter(a=>currentTotals[a.id]>0).length+' / '+DASH_AREAS().length,'Setores com contagem positiva'],
+      ['OCUPAÇÃO GLOBAL',known===DASH_AREAS().length&&cap>0?fmt(Math.round(current/cap*1000)/10)+'%':'—',known+' de '+DASH_AREAS().length+' capacidades cadastradas']
+    ];
+    $('dashboard-kpis').innerHTML=kpis.map(k=>'<div class="dashboard-kpi"><small>'+k[0]+'</small><strong>'+k[1]+'</strong><span>'+k[2]+'</span></div>').join('');
+    $('dashboard-hours').innerHTML=dashboardProgressSvg(timeline);
+    $('dashboard-areas').innerHTML=dashboardCompare(currentTotals);
+    $('dashboard-heat').innerHTML=dashboardHeat(timeline);
+    $('dashboard-saved-dates').innerHTML='<div class="dashboard-history-list">'+days.slice(0,24).map(date=>'<button type="button" class="dashboard-history-date '+(date===state.date?'current':'')+'" data-history-date="'+date+'">'+date.slice(8,10)+'/'+date.slice(5,7)+'/'+date.slice(0,4)+'</button>').join('')+'</div><p style="font-size:10px;color:#a9c6ee;margin-top:10px">'+days.length+' data(s) preservada(s) neste aparelho.</p>';
+  }
+  function openDashboard(){closeMathPad();renderDashboard();$('dashboard-modal').classList.remove('hidden');document.body.style.overflow='hidden'}
+  function closeDashboard(){$('dashboard-modal').classList.add('hidden');document.body.style.overflow=''}
+  function setupDashboard(){
+    $('btn-dashboard').addEventListener('click',openDashboard);
+    $('dashboard-close').addEventListener('click',closeDashboard);
+    $('dashboard-modal').addEventListener('click',e=>{if(e.target===$('dashboard-modal'))closeDashboard()});
+    $('dashboard-date').addEventListener('change',e=>switchDate(e.target.value));
+    $('dashboard-saved-dates').addEventListener('click',e=>{const b=e.target.closest('[data-history-date]');if(b)switchDate(b.dataset.historyDate)});
+    $('dashboard-areas').addEventListener('change',e=>{
+      const inp=e.target.closest('[data-dashboard-cap]');if(!inp)return;
+      const n=Number(inp.value);
+      if(n>0&&Number.isFinite(n))history.capacities[inp.dataset.dashboardCap]=Math.round(n);
+      else delete history.capacities[inp.dataset.dashboardCap];
+      save({record:false});
+      renderDashboard();
+    });
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('dashboard-modal').classList.contains('hidden'))closeDashboard()});
+  }
+
+  function setup(){readStorage();loadHistory();renderDateTime();render();setupMathPad();setupDashboard();
     $('areas-container').addEventListener('click',e=>{const t=e.target.closest('[data-area-toggle]');if(t){const id=t.dataset.areaToggle;open[id]=!open[id];if(open[id])active=id;updateOpenState();return}const plus=e.target.closest('[data-plus]');if(plus){const id=plus.dataset.plus,inp=$('input-'+id);if(!inp)return;const pos=inp.selectionStart??inp.value.length;const end=inp.selectionEnd??pos;const start=inp.value.slice(0,pos),endtext=inp.value.slice(end);const v=start&&/\d$/.test(start)?'+':'';if(v){inp.value=start+v+endtext;inp.setSelectionRange(pos+1,pos+1);inp.dispatchEvent(new Event('input',{bubbles:true}))}inp.focus()}});
     $('areas-container').addEventListener('keydown',e=>{const t=e.target.closest('[data-area-toggle]');if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();t.click()}});
-    $('areas-container').addEventListener('input',e=>{if(!e.target.matches('[data-field]'))return;const id=e.target.dataset.field;state.values[id]=e.target.value;resizeMathField(e.target);save();refreshAll(id);if(activeMathField===id)updateMathPadResult()});
+    $('areas-container').addEventListener('input',e=>{if(!e.target.matches('[data-field]'))return;const id=e.target.dataset.field;state.values[id]=e.target.value;resizeMathField(e.target);save();refreshAll(id);if(activeMathField===id)updateMathPadResult();if(!$('dashboard-modal').classList.contains('hidden'))renderDashboard()});
     $('tabs-container').addEventListener('click',e=>{const tab=e.target.closest('[data-tab]');if(tab)setActive(tab.dataset.tab,true)});
-    function setupPicker(buttonId,inputId,type){const btn=$(buttonId),inp=$(inputId);btn.addEventListener('click',()=>{try{inp.showPicker?inp.showPicker():inp.click()}catch(e){inp.click()}});inp.addEventListener('change',()=>{if(inp.value){state[type]=inp.value;renderDateTime();save()}})}
+    function setupPicker(buttonId,inputId,type){const btn=$(buttonId),inp=$(inputId);btn.addEventListener('click',()=>{try{inp.showPicker?inp.showPicker():inp.click()}catch(e){inp.click()}});inp.addEventListener('change',()=>{if(inp.value){if(type==='date')switchDate(inp.value);else{state.time=inp.value;renderDateTime();save({record:false})}}})}
     setupPicker('date-trigger-btn','hidden-date-input','date');setupPicker('time-trigger-btn','hidden-time-input','time');
     $('btn-resumo').addEventListener('click',openSummary);$('close-modal-btn').addEventListener('click',closeSummary);$('summary-modal').addEventListener('click',e=>{if(e.target===$('summary-modal'))closeSummary()});
     $('btn-copy-summary').addEventListener('click',()=>copy(textReport()));$('btn-compartilhar').addEventListener('click',async()=>{if(navigator.share){try{await navigator.share({title:'Contagem SOC',text:textReport()});return}catch(e){if(e.name==='AbortError')return}}copy(textReport())});$('btn-exportar-png').addEventListener('click',()=>exportPNG(false));
-    $('btn-reset-all').addEventListener('click',()=>{if(!resetArmed){resetArmed=true;$('btn-reset-all').textContent='Confirmar zerar?';clearTimeout(resetTimer);resetTimer=setTimeout(()=>{resetArmed=false;$('btn-reset-all').textContent='Zerar tudo'},4000);return}state.values={};save();render();openSummary();toast('Contagem zerada')});
+    $('btn-reset-all').addEventListener('click',()=>{if(!resetArmed){resetArmed=true;$('btn-reset-all').textContent='Confirmar zerar?';clearTimeout(resetTimer);resetTimer=setTimeout(()=>{resetArmed=false;$('btn-reset-all').textContent='Zerar tudo'},4000);return}state.values={};save();render();openSummary();if(!$('dashboard-modal').classList.contains('hidden'))renderDashboard();toast('Contagem zerada')});
     $('btn-backup').addEventListener('click',backup);$('btn-restore').addEventListener('click',()=>$('backup-file').click());$('backup-file').addEventListener('change',e=>restore(e.target.files?.[0]));
-    $('btn-rascunho').addEventListener('click',()=>{if(Object.values(state.values).some(v=>String(v||'').trim())&&!confirm('Substituir pelos valores do rascunho?'))return;state.values={...sample};save();render();toast('Exemplo carregado')});
+    $('btn-rascunho').addEventListener('click',()=>{if(Object.values(state.values).some(v=>String(v||'').trim())&&!confirm('Substituir pelos valores do rascunho?'))return;state.values={...sample};save({record:false});render();toast('Exemplo carregado (sem horário fictício)')});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
   window.ContagemSOC={calculate,snapshot,AREAS}; // interface somente para testes do navegador

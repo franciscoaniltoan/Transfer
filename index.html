@@ -26,6 +26,27 @@
 @media(max-width:390px){.app-root{padding-left:10px;padding-right:10px}.brand-mark{width:39px;height:39px;flex-basis:39px}.brand-text h1{font-size:16px}.brand-text p{font-size:10px}.date-time-pill{gap:4px;padding:5px}.date-time-pill svg{width:12px;height:12px}.date-time-pill button{font-size:9px}.area-icon-box{width:40px;height:40px;flex-basis:40px}.area-header{gap:5px;padding:11px 9px}.area-header-left,.area-header-right{gap:6px}.area-title-box h2{font-size:15px}.subtotal-badge{min-width:62px;padding:5px 6px}.subtotal-badge strong{font-size:20px}.subcard{padding:8px}.sub-icon{width:37px;height:37px;flex-basis:37px}.subcard-id{gap:6px}.subcard-label{font-size:14px}.section-badge{min-width:52px;padding:3px 8px}.action-btn-dark{min-width:51px;padding:4px}.action-btn-primary{min-width:73px;padding:4px}.grand-total svg{display:none}.bottom-inner{gap:4px}.bottom-label{font-size:7px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
+
+/* Teclado de expressões matemáticas — não depende do teclado nativo do Android. */
+.math-pad{position:fixed;z-index:85;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;padding:11px 12px calc(13px + env(safe-area-inset-bottom,0px));border:1px solid #4277c3;border-bottom:0;border-radius:23px 23px 0 0;background:linear-gradient(160deg,#132e5e,#061935 82%);box-shadow:0 -12px 38px #020b23bb;transform:translateY(110%);visibility:hidden;pointer-events:none;transition:transform .23s cubic-bezier(.2,1,.3,1),visibility .23s;max-height:min(88dvh,480px);overflow-y:auto;overscroll-behavior:contain}
+.math-pad.show{visibility:visible;pointer-events:auto;transform:translateY(0)}
+.math-pad-top{display:flex;gap:11px;align-items:center;margin:0 0 9px;min-height:42px}
+.math-pad-info{flex:1;min-width:0}.math-pad-info small{display:block;font-size:9px;font-weight:800;letter-spacing:.09em;color:#a6c6ff}.math-pad-info strong{display:block;color:#fff;font-weight:850;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.math-pad-value{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#ffffff12;border:1px solid #ffffff20;border-radius:12px;padding:4px 12px;min-width:74px;min-height:42px}.math-pad-value small{font-size:8px;letter-spacing:.05em;font-weight:800;color:#a9caff}.math-pad-value output{font-size:19px;line-height:1.18;font-weight:900;color:#fff}
+.math-pad-close{width:37px;height:37px;flex:0 0 37px;border:1px solid #ffffff38;border-radius:11px;background:#ffffff1c;color:#f4f8ff;font-size:18px;font-weight:800}
+.math-pad-keys{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.math-pad-key{height:48px;border:1px solid #dce9ff;border-radius:12px;color:#102c59;background:linear-gradient(180deg,#fff,#dce9ff);font-size:23px;font-weight:850;box-shadow:0 3px 0 #0006;touch-action:manipulation;user-select:none}
+.math-pad-key:active{transform:translateY(2px);box-shadow:0 1px 0 #0006}
+.math-pad-key.operator{color:#fff;background:linear-gradient(160deg,#3185fa,#1452bb);border-color:#519dff}
+.math-pad-key.utility{font-size:15px;background:linear-gradient(170deg,#415e8c,#25416d);border-color:#6a8bb6;color:#fff}
+.math-pad-key.done{font-size:15px;color:#fff;background:linear-gradient(155deg,#0eae85,#067f6d);border-color:#42c8ae}
+.math-pad-key.delete{font-size:25px}
+.math-pad-help{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;font-size:10px;color:#b7cae8}.math-pad-next{background:none;border:0;color:#91d4ff;font-weight:800;font-size:12px;padding:5px}
+body.math-pad-open .bottom-bar{transform:translateY(115%);pointer-events:none}
+body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
+@media(max-height:670px){.math-pad-key{height:39px}.math-pad{padding-top:7px}.math-pad-top{margin-bottom:7px}.math-pad-help{margin-top:5px}}
+@media(prefers-reduced-motion:reduce){.math-pad{transition:none}}
+
 </style>
 </head>
 <body>
@@ -73,6 +94,24 @@
     </div>
   </div>
   <div id="toast-banner" class="toast" role="status" aria-live="polite"><span id="toast-message"></span></div>
+
+  <!-- Teclado próprio para operações matemáticas; evita o teclado alfabético Android. -->
+  <aside id="math-pad" class="math-pad" role="group" aria-label="Teclado matemático" aria-hidden="true">
+    <div class="math-pad-top">
+      <div class="math-pad-info"><small>TECLADO MATEMÁTICO</small><strong id="math-pad-field">Contagem</strong></div>
+      <div class="math-pad-value"><small>RESULTADO</small><output id="math-pad-result" aria-live="polite">0</output></div>
+      <button class="math-pad-close" type="button" data-pad-action="close" aria-label="Fechar teclado">✕</button>
+    </div>
+    <div class="math-pad-keys">
+      <button class="math-pad-key" type="button" data-pad-key="7">7</button><button class="math-pad-key" type="button" data-pad-key="8">8</button><button class="math-pad-key" type="button" data-pad-key="9">9</button><button class="math-pad-key operator" type="button" data-pad-key="+">+</button>
+      <button class="math-pad-key" type="button" data-pad-key="4">4</button><button class="math-pad-key" type="button" data-pad-key="5">5</button><button class="math-pad-key" type="button" data-pad-key="6">6</button><button class="math-pad-key operator" type="button" data-pad-key="-">−</button>
+      <button class="math-pad-key" type="button" data-pad-key="1">1</button><button class="math-pad-key" type="button" data-pad-key="2">2</button><button class="math-pad-key" type="button" data-pad-key="3">3</button><button class="math-pad-key operator" type="button" data-pad-key="*">×</button>
+      <button class="math-pad-key operator" type="button" data-pad-key="(">(</button><button class="math-pad-key" type="button" data-pad-key="0">0</button><button class="math-pad-key operator" type="button" data-pad-key=")">)</button><button class="math-pad-key operator" type="button" data-pad-key="/">÷</button>
+      <button class="math-pad-key" type="button" data-pad-key=".">.</button><button class="math-pad-key utility delete" type="button" data-pad-action="backspace" aria-label="Apagar um caractere">⌫</button><button class="math-pad-key utility" type="button" data-pad-action="clear">Limpar</button><button class="math-pad-key done" type="button" data-pad-action="done">Concluir</button>
+    </div>
+    <div class="math-pad-help"><span>Ex.: 17+14+12+</span><button class="math-pad-next" type="button" data-pad-action="next">Próximo campo →</button></div>
+  </aside>
+
   <script>
 (() => {
   'use strict';
@@ -169,7 +208,7 @@
   function tabMarkup(area){return `<button type="button" class="tab-pill ${area.id===active?'active':''}" data-tab="${area.id}" aria-pressed="${area.id===active}">${esc(area.tab)}</button>`}
   function sectionMarkup(area,field){const [id,label,kind]=field;const [accent,color,badge,hash]=SECTION_COLORS[kind];const raw=state.values[id]||'';const evaluated=calculate(raw);const iconName={gaiolas:'gaiolas',scuttles:'scuttles',rejeito:'rejeito',ptl:'ptl',cn:'cn','grid-verde':'gridVerde','grid-azul':'gridAzul',big:'bigVolume',contingencia:'checklist',buffer:'outsideBuffer'}[kind]||'sum';return `<div class="subcard subcard-${kind}" style="--section-accent:${accent};--section-text:${color};--badge-bg:${badge}">
     <div class="subcard-head"><div class="subcard-id"><div class="sub-icon">${ICONS[iconName]}</div><span class="subcard-bar"></span><label class="subcard-label" for="input-${id}">${esc(label)}</label></div><output id="badge-${id}" class="section-badge ${evaluated.valid?'':'invalid'}">${evaluated.valid?fmt(evaluated.value):'Erro'}</output></div>
-    <div class="math-input-pill ${evaluated.valid?'':'invalid'}"><input type="text" id="input-${id}" data-field="${id}" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" placeholder="Ex.: 17+14+12+" value="${esc(raw)}" aria-label="${esc(area.title)} · ${esc(label)}"><button type="button" data-plus="${id}" class="math-plus" title="Adicionar +" aria-label="Adicionar sinal de mais">#</button></div><p class="field-error ${evaluated.valid?'':'visible'}" id="error-${id}">${esc(evaluated.error||'')}</p>
+    <div class="math-input-pill ${evaluated.valid?'':'invalid'}"><input type="text" id="input-${id}" data-field="${id}" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="none" enterkeyhint="done" placeholder="Ex.: 17+14+12+" value="${esc(raw)}" aria-label="${esc(area.title)} · ${esc(label)}"><button type="button" data-plus="${id}" class="math-plus" title="Adicionar +" aria-label="Adicionar sinal de mais">#</button></div><p class="field-error ${evaluated.valid?'':'visible'}" id="error-${id}">${esc(evaluated.error||'')}</p>
   </div>`}
   function subtotal(area){return area.fields.reduce((sum,[id])=>sum+calculate(state.values[id]||'').value,0)}
   function areaMarkup(area){return `<section class="area-card ${area.theme} ${open[area.id]?'open':''}" id="card-area-${area.id}">
@@ -186,7 +225,7 @@
   function pop(el){if(!el)return;el.classList.remove('number-pop');void el.offsetWidth;el.classList.add('number-pop')}
   function refreshAll(changed){const snap=snapshot();for(const a of AREAS){const output=$('subtotal-'+a.id);if(output){output.textContent=fmt(snap.totals[a.id]);if(a.id===changed)pop(output)}for(const [field] of a.fields){const result=calculate(state.values[field]||'');const badge=$('badge-'+field),err=$('error-'+field),inp=$('input-'+field);if(!badge)continue;badge.textContent=result.valid?fmt(result.value):'Erro';badge.classList.toggle('invalid',!result.valid);err.textContent=result.error||'';err.classList.toggle('visible',!result.valid);inp?.parentNode.classList.toggle('invalid',!result.valid);if(field===changed)pop(badge)}}$('grand-total-value').textContent=fmt(snap.overall);$('modal-grand-total').textContent=fmt(snap.overall);return snap}
   function textReport(){const s=snapshot();let lines=['CONTAGEM SOC',`${$('header-date-text').textContent} · ${state.time}`,''];for(const a of AREAS){lines.push(a.title.toUpperCase()+': '+fmt(s.totals[a.id]));for(const [id,label] of a.fields)lines.push('• '+label+': '+(state.values[id]||'—')+' = '+fmt(s.val[id]));lines.push('')}lines.push('TOTAL DAS ÁREAS: '+fmt(s.overall),'TOTAL REJEITOS: '+fmt(s.rejects),'FORA DE BUFFER: '+fmt(s.totals.buffer));return lines.join('\n')}
-  function openSummary(){const s=snapshot();$('modal-subtitle-date').textContent=$('header-date-text').textContent+' · '+state.time;$('modal-grand-total').textContent=fmt(s.overall);$('summary-modal-body').innerHTML=AREAS.map(a=>`<section class="summary-item"><div class="summary-head"><span>${esc(a.title)}</span><strong>Subtotal ${fmt(s.totals[a.id])}</strong></div><div class="summary-fields">${a.fields.map(([id,label])=>`<div><small>${esc(label)}</small><strong>${fmt(s.val[id])}</strong></div>`).join('')}</div></section>`).join('')+`<section class="summary-item"><div class="summary-head"><span>Total de rejeitos</span><strong>${fmt(s.rejects)}</strong></div><div class="summary-head"><span>Fora de Buffer (separado)</span><strong>${fmt(s.totals.buffer)}</strong></div></section>`;$('summary-modal').classList.remove('hidden');$('btn-reset-all').textContent='Zerar tudo';resetArmed=false}
+  function openSummary(){closeMathPad();const s=snapshot();$('modal-subtitle-date').textContent=$('header-date-text').textContent+' · '+state.time;$('modal-grand-total').textContent=fmt(s.overall);$('summary-modal-body').innerHTML=AREAS.map(a=>`<section class="summary-item"><div class="summary-head"><span>${esc(a.title)}</span><strong>Subtotal ${fmt(s.totals[a.id])}</strong></div><div class="summary-fields">${a.fields.map(([id,label])=>`<div><small>${esc(label)}</small><strong>${fmt(s.val[id])}</strong></div>`).join('')}</div></section>`).join('')+`<section class="summary-item"><div class="summary-head"><span>Total de rejeitos</span><strong>${fmt(s.rejects)}</strong></div><div class="summary-head"><span>Fora de Buffer (separado)</span><strong>${fmt(s.totals.buffer)}</strong></div></section>`;$('summary-modal').classList.remove('hidden');$('btn-reset-all').textContent='Zerar tudo';resetArmed=false}
   const closeSummary=()=>$('summary-modal').classList.add('hidden');
   async function copy(text){try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);toast('Resumo copiado');return}}catch(e){}const field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.opacity='0';document.body.append(field);field.select();let success=false;try{success=document.execCommand('copy')}catch(e){}field.remove();toast(success?'Resumo copiado':'Cópia indisponível')}
   // Imagem legível para enviar: inclui TODOS os setores, mesmo os recolhidos na tela.
@@ -199,10 +238,86 @@
   async function exportPNG(share=false){const c=makePNG();if(!c)return;const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob){toast('Não foi possível gerar o PNG');return}const name='Contagem_SOC_'+state.date+'_'+state.time.replace(':','h')+'.png';if(share&&navigator.share&&navigator.canShare){const file=new File([blob],name,{type:'image/png'});if(navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Contagem SOC'});return}catch(e){if(e.name==='AbortError')return}}}downloadBlob(blob,name);toast(share?'PNG salvo para compartilhar':'PNG exportado')}
   function backup(){const blob=new Blob([JSON.stringify({type:'ContagemSOC',version:3,state},null,2)],{type:'application/json'});downloadBlob(blob,'Contagem_SOC_backup_'+state.date+'.json');toast('Backup gerado')}
   async function restore(file){if(!file)return;try{const data=JSON.parse(await file.text());const payload=data.state||data;if(!payload.values||typeof payload.values!=='object')throw Error('Formato inválido');if(Object.values(state.values).some(v=>String(v||'').trim())&&!confirm('Substituir os valores atuais pelos do backup?'))return;state.values={...payload.values};state.date=cleanDate(payload.date);state.time=cleanTime(payload.time);save();renderDateTime();render();toast('Backup restaurado')}catch(e){toast('Backup inválido')}finally{$('backup-file').value=''}}
-  function setup(){readStorage();renderDateTime();render();
+
+  // O painel é mostrado somente em telas com toque; no desktop, permanece digitável por teclado físico.
+  let activeMathField=null;
+  const touchMathDevice=()=>window.matchMedia('(pointer:coarse)').matches || window.innerWidth<690;
+  function mathPadInput(){return activeMathField?$('input-'+activeMathField):null}
+  function updateMathPadResult(){
+    const inp=mathPadInput();if(!inp)return;
+    const result=calculate(inp.value);
+    $('math-pad-result').textContent=result.valid?fmt(result.value):'Erro';
+  }
+  function ensureMathInputVisible(){
+    const inp=mathPadInput(),pad=$('math-pad');if(!inp||!pad.classList.contains('show'))return;
+    const rect=inp.getBoundingClientRect();
+    const visibleHeight=window.visualViewport?.height||window.innerHeight;
+    const padHeight=pad.getBoundingClientRect().height;
+    const lower=Math.max(70,visibleHeight-padHeight-14);
+    if(rect.bottom>lower)window.scrollBy({top:rect.bottom-lower+15,behavior:'smooth'});
+    else if(rect.top<10)window.scrollBy({top:rect.top-25,behavior:'smooth'});
+  }
+  function openMathPad(inp){
+    if(!touchMathDevice()||!inp?.matches('[data-field]'))return;
+    activeMathField=inp.dataset.field;
+    const area=AREAS.find(a=>a.fields.some(([id])=>id===activeMathField));
+    const field=area?.fields.find(([id])=>id===activeMathField);
+    $('math-pad-field').textContent=(area?area.title+' · ':'')+(field?field[1]:'Contagem');
+    document.body.classList.add('math-pad-open');
+    $('math-pad').classList.add('show');
+    $('math-pad').setAttribute('aria-hidden','false');
+    updateMathPadResult();
+    requestAnimationFrame(()=>setTimeout(ensureMathInputVisible,65));
+  }
+  function closeMathPad(){
+    if(!$('math-pad').classList.contains('show'))return;
+    $('math-pad').classList.remove('show');
+    $('math-pad').setAttribute('aria-hidden','true');
+    document.body.classList.remove('math-pad-open');
+    const inp=mathPadInput();activeMathField=null;
+    if(inp&&document.activeElement===inp)inp.blur();
+  }
+  function modifyMathField(kind,text=''){
+    const inp=mathPadInput();if(!inp)return;
+    // Refoca sem alterar a rolagem e preserva a seleção do cursor.
+    try{inp.focus({preventScroll:true})}catch(e){inp.focus()}
+    let start=inp.selectionStart??inp.value.length,end=inp.selectionEnd??start;
+    if(kind==='clear'){inp.value='';inp.setSelectionRange(0,0)}
+    else if(kind==='backspace'){
+      if(start===end&&start>0)start--;
+      inp.setRangeText('',start,end,'end');
+    }else inp.setRangeText(text,start,end,'end');
+    inp.dispatchEvent(new Event('input',{bubbles:true}));
+    updateMathPadResult();
+  }
+  function setupMathPad(){
+    $('areas-container').addEventListener('focusin',e=>{if(e.target.matches('[data-field]'))openMathPad(e.target)});
+    $('math-pad').addEventListener('click',e=>{
+      const key=e.target.closest('[data-pad-key]'),action=e.target.closest('[data-pad-action]');
+      if(key){modifyMathField('insert',key.dataset.padKey);return}
+      if(!action)return;
+      const a=action.dataset.padAction;
+      if(a==='close'||a==='done'){closeMathPad();return}
+      if(a==='backspace'||a==='clear'){modifyMathField(a);return}
+      if(a==='next'){
+        const all=AREAS.flatMap(area=>area.fields.map(([id])=>({id,area:area.id})));
+        const index=all.findIndex(x=>x.id===activeMathField);
+        const next=all[(index+1)%all.length];
+        if(next){setActive(next.area,false);const inp=$('input-'+next.id);if(inp){inp.focus({preventScroll:true});openMathPad(inp);ensureMathInputVisible()}}
+      }
+    });
+    document.addEventListener('pointerdown',e=>{
+      if(!$('math-pad').classList.contains('show'))return;
+      if(e.target.closest('#math-pad,[data-field],[data-plus]'))return;
+      closeMathPad();
+    });
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMathPad()});
+  }
+
+  function setup(){readStorage();renderDateTime();render();setupMathPad();
     $('areas-container').addEventListener('click',e=>{const t=e.target.closest('[data-area-toggle]');if(t){const id=t.dataset.areaToggle;open[id]=!open[id];if(open[id])active=id;updateOpenState();return}const plus=e.target.closest('[data-plus]');if(plus){const id=plus.dataset.plus,inp=$('input-'+id);if(!inp)return;const pos=inp.selectionStart??inp.value.length;const end=inp.selectionEnd??pos;const start=inp.value.slice(0,pos),endtext=inp.value.slice(end);const v=start&&/\d$/.test(start)?'+':'';if(v){inp.value=start+v+endtext;inp.setSelectionRange(pos+1,pos+1);inp.dispatchEvent(new Event('input',{bubbles:true}))}inp.focus()}});
     $('areas-container').addEventListener('keydown',e=>{const t=e.target.closest('[data-area-toggle]');if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();t.click()}});
-    $('areas-container').addEventListener('input',e=>{if(!e.target.matches('[data-field]'))return;const id=e.target.dataset.field;state.values[id]=e.target.value;save();refreshAll(id)});
+    $('areas-container').addEventListener('input',e=>{if(!e.target.matches('[data-field]'))return;const id=e.target.dataset.field;state.values[id]=e.target.value;save();refreshAll(id);if(activeMathField===id)updateMathPadResult()});
     $('tabs-container').addEventListener('click',e=>{const tab=e.target.closest('[data-tab]');if(tab)setActive(tab.dataset.tab,true)});
     function setupPicker(buttonId,inputId,type){const btn=$(buttonId),inp=$(inputId);btn.addEventListener('click',()=>{try{inp.showPicker?inp.showPicker():inp.click()}catch(e){inp.click()}});inp.addEventListener('change',()=>{if(inp.value){state[type]=inp.value;renderDateTime();save()}})}
     setupPicker('date-trigger-btn','hidden-date-input','date');setupPicker('time-trigger-btn','hidden-time-input','time');

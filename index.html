@@ -71,7 +71,12 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
 .dashboard-kpi small{display:block;font-size:9px;letter-spacing:.05em;font-weight:850;color:#abc9f4}.dashboard-kpi strong{display:block;margin-top:5px;font-size:26px;line-height:1.05;font-weight:900;overflow-wrap:anywhere}.dashboard-kpi span{display:block;margin-top:5px;font-size:10px;color:#a8c5ed;line-height:1.4}
 .dashboard-block{padding:13px;border:1px solid #304d7d;border-radius:17px;background:linear-gradient(135deg,#0f2a55,#0b2147);margin-top:11px;box-shadow:0 6px 19px #020c2370}
 .dashboard-block-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}.dashboard-block-head h3{font-size:14px;font-weight:900;margin:0;color:#f3f8ff}.dashboard-block-head p{font-size:10px;line-height:1.45;color:#9fbee9;margin:4px 0 0}
-.dashboard-chart-holder{width:100%;overflow:hidden}.dashboard-chart-holder svg{width:100%;height:auto;max-height:235px;display:block;overflow:visible}
+.dashboard-chart-holder{width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}.dashboard-chart-holder svg{width:100%;height:auto;max-height:248px;display:block;overflow:visible}
+.dashboard-counting-list{display:flex;gap:7px;overflow-x:auto;margin-top:10px;padding-bottom:3px;scrollbar-width:thin}
+.dashboard-counting-chip{flex:0 0 auto;padding:8px 10px;border-radius:10px;background:#153966;border:1px solid #5685c54d;color:#d8ecff;font-size:11px;white-space:nowrap}
+.dashboard-counting-chip strong{display:block;font-size:13px;color:#fff;margin-top:3px}
+.dashboard-counting-chip.current{border-color:#57c7ff;background:#1d6db84d}
+.dashboard-counting-note{color:#b7cbed;font-size:10px;margin:10px 0 0;line-height:1.55}
 .dashboard-empty{padding:22px 9px;border:1px dashed #446798;border-radius:12px;text-align:center;color:#bdd2f1;font-size:12px;line-height:1.55}
 .dashboard-bar-row{margin:12px 0}.dashboard-bar-top{display:flex;justify-content:space-between;align-items:center;gap:7px;margin-bottom:6px;font-size:11px}.dashboard-bar-top strong{font-size:12px;color:#ecf5ff}.dashboard-bar-top span{color:#d1e2ff;font-size:11px;font-variant-numeric:tabular-nums}
 .dashboard-track{height:11px;border-radius:999px;background:#071733;border:1px solid #ffffff17;overflow:hidden}.dashboard-fill{height:100%;min-width:0;border-radius:999px;box-shadow:inset 0 1px 0 #ffffff40}
@@ -183,22 +188,22 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
         <div class="dashboard-day-row"><label for="dashboard-date">Data da contagem</label><input type="date" id="dashboard-date" aria-label="Data do dashboard"></div>
         <div class="dashboard-kpis" id="dashboard-kpis"></div>
         <div class="dashboard-block">
-          <div class="dashboard-block-head"><div><h3>Progressão hora a hora</h3><p>Último total registrado em cada hora, com continuidade do período anterior.</p></div></div>
-          <div class="dashboard-chart-holder" id="dashboard-hours"></div>
+          <div class="dashboard-block-head"><div><h3>Evolução entre contagens</h3><p>Compare C1, C2, C3... Cada contagem é uma medição independente, sem soma duplicada.</p></div></div>
+          <div class="dashboard-chart-holder" id="dashboard-hours"></div><div class="dashboard-counting-list" id="dashboard-counting-list"></div><p class="dashboard-counting-note" id="dashboard-counting-note"></p>
         </div>
         <div class="dashboard-block">
           <div class="dashboard-block-head"><div><h3>Comparação entre áreas</h3><p>Informe a capacidade para visualizar ocupação percentual; sem capacidade, mostramos participação no total.</p></div></div>
           <div id="dashboard-areas"></div>
         </div>
         <div class="dashboard-block">
-          <div class="dashboard-block-head"><div><h3>Calor produtivo por área</h3><p>Variação líquida da contagem por área e hora; correções podem reduzir volumes.</p></div></div>
+          <div class="dashboard-block-head"><div><h3>Variação entre contagens por área</h3><p>Diferença de cada setor em relação à contagem anterior, não pacotes novos processados.</p></div></div>
           <div id="dashboard-heat"></div>
         </div>
         <div class="dashboard-block">
           <div class="dashboard-block-head"><div><h3>Histórico por data</h3><p>Selecione uma data salva para recuperar sua contagem independente.</p></div></div>
           <div id="dashboard-saved-dates"></div>
         </div>
-        <div class="dashboard-note">Os registros horários são feitos automaticamente no aparelho quando você altera uma contagem na data atual. Dias importados de versões antigas não recebem horários inventados. O mapa de calor mede variações registradas, não produtividade ou fluxo físico em tempo real. Os dados ficam salvos neste navegador.</div>
+        <div class="dashboard-note">Cada contagem válida e preenchida gera um ponto no gráfico, sem somar contagens anteriores. Contagens vazias não zeram a evolução. O mapa de calor compara medições consecutivas e não indica produtividade física. Fora de Buffer não entra no total. Os dados ficam neste navegador.</div>
       </div>
     </div>
   </section>
@@ -852,40 +857,51 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
   const DASH_COLORS={cd:'#398aff',ptl:'#17c5c0',ab:'#ff9c40',java:'#9d90ff',esteiras:'#67bfff',contingencia:'#ff617e',buffer:'#3fd59c'};
   const DASH_AREAS=()=>AREAS.filter(a=>a.id!=='buffer');
   function totalsOverall(totals){return DASH_AREAS().reduce((v,a)=>v+(Number(totals[a.id])||0),0)}
-  function dayTimeline(date){
-    const day=historyDay(date),hours=Object.keys(day.hours).filter(h=>/^\d{2}$/.test(h)&&Number(h)<=23).sort((a,b)=>Number(a)-Number(b));
-    if(!hours.length)return {labels:[],points:[],changes:[],observed:0};
-    const first=Number(hours[0]),lastObserved=Number(hours[hours.length-1]);
-    const end=date===today()?Math.max(lastObserved,new Date().getHours()):lastObserved;
-    const start=Math.max(0,Math.min(first,end-11));
-    const labels=[],points=[],changes=[];
-    let previous={...day.baseline};
-    for(let i=start;i<=end;i++){
-      const key=String(i).padStart(2,'0');
-      if(day.hours[key]){
-        const current=day.hours[key].totals||{};
-        const change={};for(const a of DASH_AREAS())change[a.id]=(Number(current[a.id])||0)-(Number(previous[a.id])||0);
-        previous={...current};changes.push(change);
-      }else changes.push({});
-      labels.push(key);
-      points.push({...previous});
-    }
-    return {labels,points,changes,observed:hours.length};
+  // Uma amostra por sessão preenchida, mesmo com várias sessões na mesma data.
+  function countingTimeline(date){
+    const group=sessionContainer(date),entries=[],skipped=[];
+    group.sessions.forEach((s,i)=>{
+      const active=date===state.date&&group.activeSessionId===s.id;
+      const vals=active?state.values:s.values||{};
+      if(!Object.values(vals).some(v=>String(v??'').trim()))return;
+      if(!AREAS.every(a=>a.fields.every(([id])=>calculate(vals[id]||'').valid))){skipped.push(i+1);return}
+      const totals=areaTotalsFrom(vals);
+      entries.push({number:i+1,id:s.id,totals,total:totalsOverall(totals),
+        time:/^\d{2}:\d{2}$/.test(s.time||'')?s.time:null,current:active});
+    });
+    return {entries,skipped,observed:entries.length};
   }
   function dashboardProgressSvg(timeline){
-    if(!timeline.observed)return '<div class="dashboard-empty">Ainda não há registros de evolução horária nesta data.<br>Comece a contar para gerar o primeiro ponto.</div>';
-    const n=timeline.labels.length,w=560,h=212,left=18,right=12,top=27,bottom=31,usableH=h-top-bottom;
-    const vals=timeline.points.map(totalsOverall),max=Math.max(1,...vals);
-    const step=(w-left-right)/n,bw=Math.min(47,step*.69);
-    const grid=[0,.25,.5,.75,1].map(p=>'<line x1="'+left+'" y1="'+(top+usableH*(1-p))+'" x2="'+(w-right)+'" y2="'+(top+usableH*(1-p))+'" stroke="#ffffff20" stroke-dasharray="4 5"/>').join('');
-    const bars=vals.map((v,i)=>{
-      const height=usableH*v/max,x=left+step*i+(step-bw)/2,y=top+usableH-height;
-      const showLabel=n<=8||i%2===0||i===n-1;
-      return '<g><title>'+timeline.labels[i]+'h: '+fmt(v)+' volumes acumulados</title><rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(2,height).toFixed(1)+'" rx="5" fill="url(#socBar)"/>'+(showLabel?'<text x="'+(x+bw/2).toFixed(1)+'" y="'+(h-9)+'" text-anchor="middle" font-size="13" fill="#c4dcff">'+timeline.labels[i]+'h</text>':'')+(n<=7?'<text x="'+(x+bw/2).toFixed(1)+'" y="'+Math.max(14,y-7).toFixed(1)+'" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">'+fmt(v)+'</text>':'')+'</g>';
+    const es=timeline.entries;
+    if(!es.length)return '<div class="dashboard-empty">Nenhuma contagem preenchida nesta data. Inicie uma contagem e informe os valores.</div>';
+    const n=es.length,w=Math.max(368,n*84+75),h=228,l=36,r=26,t=32,b=56,H=h-t-b;
+    const vals=es.map(v=>v.total),min=Math.min(0,...vals),max=Math.max(1,...vals),span=max-min||1;
+    const x=i=>l+(n===1?(w-l-r)/2:i*(w-l-r)/(n-1)),y=v=>t+(max-v)/span*H;
+    const pts=es.map((v,i)=>[x(i),y(v.total)]);
+    const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+    const area=path+' L '+pts[n-1][0].toFixed(1)+' '+y(0).toFixed(1)+' L '+pts[0][0].toFixed(1)+' '+y(0).toFixed(1)+' Z';
+    const grid=[0,.25,.5,.75,1].map(f=>{
+      const v=min+span*f,gy=y(v);return '<line x1="'+l+'" y1="'+gy+'" x2="'+(w-r)+'" y2="'+gy+'" stroke="#ffffff24" stroke-dasharray="4 5"/><text x="'+(l-5)+'" y="'+(gy+4)+'" text-anchor="end" font-size="10" fill="#b5d4f7">'+fmt(v)+'</text>';
     }).join('');
-    return '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Gráfico de volumes acumulados por hora"><defs><linearGradient id="socBar" x1="0" x2="0" y1="1" y2="0"><stop stop-color="#1550ba"/><stop offset="1" stop-color="#64b8ff"/></linearGradient></defs>'+grid+bars+'</svg>';
+    const dots=es.map((v,i)=>{
+      const p=pts[i],before=i?es[i-1]:null;
+      const name='C'+v.number+(v.time?' · '+v.time:'')+' · '+fmt(v.total)+' volumes'+(before?' · '+(v.total>=before.total?'+':'')+fmt(v.total-before.total)+' vs anterior':'');
+      return '<g><title>'+esc(name)+'</title><circle cx="'+p[0]+'" cy="'+p[1]+'" r="6" stroke="#071a38" stroke-width="2" fill="'+(v.current?'#72fbd6':'#75bdff')+'"/>'+
+        '<text x="'+p[0]+'" y="'+(p[1]<t+15?p[1]+24:p[1]-13)+'" font-size="12" text-anchor="middle" font-weight="800" fill="#fff">'+fmt(v.total)+'</text>'+
+        '<text x="'+p[0]+'" y="'+(h-31)+'" text-anchor="middle" fill="#d8eaff" font-size="12" font-weight="800">C'+v.number+'</text>'+
+        (v.time?'<text x="'+p[0]+'" y="'+(h-15)+'" text-anchor="middle" fill="#a3c7ea" font-size="10">'+v.time+'</text>':'')+'</g>';
+    }).join('');
+    return '<svg viewBox="0 0 '+w+' '+h+'" style="min-width:'+Math.max(360,n*82)+'px" role="img" aria-label="Evolução das contagens salvas"><defs><linearGradient id="socCounting" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#4bb4ff" stop-opacity=".33"/><stop offset="1" stop-color="#1456bc" stop-opacity=".04"/></linearGradient></defs>'+
+      grid+(n>1?'<path d="'+area+'" fill="url(#socCounting)"/><path d="'+path+'" fill="none" stroke="#54b5ff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>':'')+dots+'</svg>';
   }
-  function dashboardCompare(totals){
+  function dashboardCountingList(timeline){
+    return timeline.entries.map((v,i)=>{
+      const prev=i?timeline.entries[i-1]:null;
+      return '<div class="dashboard-counting-chip '+(v.current?'current':'')+'"><span>C'+v.number+(v.time?' · '+v.time:'')+(v.current?' · Atual':'')+
+        '</span><strong>'+fmt(v.total)+' volumes</strong><span>'+(prev?((v.total>=prev.total?'+':'')+fmt(v.total-prev.total)+' vs C'+prev.number):'Primeira medição')+'</span></div>';
+    }).join('');
+  }
+    function dashboardCompare(totals){
     const overall=totalsOverall(totals);
     const configured=DASH_AREAS().every(a=>Number(history.capacities[a.id])>0);
     const top='<p style="font-size:10px;color:#a7c5ed;margin:0 0 10px">'+(configured?'Todas as capacidades foram informadas.':'Capacidade opcional por setor; os demais mostram participação no volume total.')+'</p>';
@@ -897,47 +913,55 @@ body.math-pad-open .app-root{padding-bottom:max(340px,46dvh)}
     return top+rows+'<div class="dashboard-buffer"><span>Fora de Buffer · separado</span><strong>'+fmt(Number(totals.buffer)||0)+'</strong></div>';
   }
   function dashboardHeat(timeline){
-    if(!timeline.observed)return '<div class="dashboard-empty">O mapa de calor será preenchido quando houver alterações registradas neste dia.</div>';
-    const max=Math.max(1,...timeline.changes.flatMap(c=>DASH_AREAS().map(a=>Math.max(0,Number(c[a.id])||0))));
-    const levels=['#203356','#176272','#1d9d8c','#efb24f','#f16b43'];
-    let cells='<div></div>'+timeline.labels.map(h=>'<div class="dashboard-heat-hour">'+h+'h</div>').join('');
+    const es=timeline.entries;
+    if(!es.length)return '<div class="dashboard-empty">O mapa será preenchido pelas contagens válidas.</div>';
+    const max=Math.max(1,...es.flatMap((v,i)=>DASH_AREAS().map(a=>i?Math.max(0,(Number(v.totals[a.id])||0)-(Number(es[i-1].totals[a.id])||0)):0)));
+    const colors=['#203356','#176272','#1d9d8c','#efb24f','#f16b43'];
+    let cells='<div></div>'+es.map(v=>'<div class="dashboard-heat-hour">C'+v.number+'</div>').join('');
     for(const a of DASH_AREAS()){
       cells+='<div class="dashboard-heat-label">'+esc(a.tab)+'</div>';
-      for(let i=0;i<timeline.labels.length;i++){
-        const diff=Number(timeline.changes[i][a.id])||0;
-        const level=diff>0?Math.min(4,Math.max(1,Math.ceil(diff/max*4))):0;
-        const color=diff<0?'#8053ac':levels[level];
-        const title=esc(a.title)+' · '+timeline.labels[i]+'h · '+(diff>0?'+':'')+fmt(diff)+' volumes';
-        cells+='<button type="button" class="dashboard-heat-cell" data-heat-detail="'+title+'" title="'+title+'" aria-label="'+title+'" style="background:'+color+'"></button>';
-      }
+      es.forEach((v,i)=>{
+        const diff=i?(Number(v.totals[a.id])||0)-(Number(es[i-1].totals[a.id])||0):null;
+        const color=diff===null?'#1a294a':diff<0?'#8053ac':colors[diff>0?Math.min(4,Math.max(1,Math.ceil(diff/max*4))):0];
+        const label=esc(a.title)+' · C'+v.number+' · '+(diff===null?'Primeira medição':(diff>=0?'+':'')+fmt(diff)+' vs contagem anterior');
+        cells+='<button type="button" class="dashboard-heat-cell" style="background:'+color+'" title="'+label+'" aria-label="'+label+'" data-heat-detail="'+label+'"></button>';
+      });
     }
-    return '<div class="dashboard-heat-wrap"><div class="dashboard-heat" style="grid-template-columns:67px repeat('+timeline.labels.length+',minmax(25px,1fr));">'+cells+'</div></div><div class="dashboard-heat-legend">Menor atividade '+levels.map(c=>'<span class="dashboard-color" style="background:'+c+'"></span>').join('')+' Maior atividade <span class="dashboard-color" style="background:#8053ac"></span> Redução/correção</div><p class="dashboard-heat-detail" id="dashboard-heat-detail">Toque em uma célula para ver a variação daquele horário.</p>';
+    return '<div class="dashboard-heat-wrap"><div class="dashboard-heat" style="grid-template-columns:67px repeat('+es.length+',minmax(26px,1fr));">'+cells+'</div></div>'+
+      '<div class="dashboard-heat-legend">Menor diferença '+colors.map(c=>'<span class="dashboard-color" style="background:'+c+'"></span>').join('')+' Maior diferença <span class="dashboard-color" style="background:#8053ac"></span> Redução</div>'+
+      '<p class="dashboard-heat-detail" id="dashboard-heat-detail">Toque em uma célula para comparar com a contagem anterior.</p>';
   }
-  function renderDashboard(){
-    const panel=$('dashboard-modal');if(!panel)return;
+    function renderDashboard(){
+    if(!$('dashboard-modal'))return;
     $('dashboard-date').value=state.date;
-    const days=Object.keys(history.days).filter(s=>/^\d{4}-\d{2}-\d{2}$/.test(s)).sort().reverse();
-    const d=historyDay(state.date),currentTotals=areaTotalsFrom(state.values),timeline=dayTimeline(state.date);
-    const current=totalsOverall(currentTotals),cap=DASH_AREAS().reduce((sum,a)=>sum+(Number(history.capacities[a.id])||0),0);
+    const days=Object.keys(history.days).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort().reverse();
+    const timeline=countingTimeline(state.date),es=timeline.entries,last=es[es.length-1],prev=es[es.length-2];
+    // Uma nova contagem vazia não deve zerar o gráfico nem os indicadores do último registro.
+    const totals=last?last.totals:areaTotalsFrom(state.values),value=totalsOverall(totals);
+    const cap=DASH_AREAS().reduce((n,a)=>n+(Number(history.capacities[a.id])||0),0);
     const known=DASH_AREAS().filter(a=>Number(history.capacities[a.id])>0).length;
-    let lastDiff=null;
-    if(timeline.observed){
-      const last=timeline.changes.reduce((v,c)=>Object.keys(c).length?totalsOverall(c):v,0);
-      lastDiff=last;
-    }
+    const delta=last&&prev?last.total-prev.total:null;
     const kpis=[
-      ['TOTAL DAS ÁREAS',fmt(current),'Fora de Buffer: '+fmt(currentTotals.buffer||0)],
-      ['ÚLTIMA HORA REGISTRADA',lastDiff===null?'—':(lastDiff>0?'+':'')+fmt(lastDiff),timeline.observed?'Variação líquida da última hora com alterações':'Sem observações horárias'],
-      ['ÁREAS COM VOLUMES',DASH_AREAS().filter(a=>currentTotals[a.id]>0).length+' / '+DASH_AREAS().length,'Setores com contagem positiva'],
-      ['OCUPAÇÃO GLOBAL',known===DASH_AREAS().length&&cap>0?fmt(Math.round(current/cap*1000)/10)+'%':'—',known+' de '+DASH_AREAS().length+' capacidades cadastradas']
+      ['ÚLTIMA CONTAGEM',last?fmt(value):'—',last?'C'+last.number+(last.time?' · '+last.time:'')+' · Fora de Buffer: '+fmt(totals.buffer||0):'Nenhuma contagem válida'],
+      ['VARIAÇÃO ENTRE CONTAGENS',delta===null?'—':(delta>=0?'+':'')+fmt(delta),delta===null?'São necessárias duas contagens':'Diferença entre C'+last.number+' e C'+prev.number],
+      ['CONTAGENS REGISTRADAS',timeline.observed+' / '+sessionContainer(state.date).sessions.length,'Preenchidas e válidas nesta data'],
+      ['OCUPAÇÃO DA ÚLTIMA',last&&known===DASH_AREAS().length&&cap>0?fmt(Math.round(value/cap*1000)/10)+'%':'—',known+' de '+DASH_AREAS().length+' capacidades']
     ];
     $('dashboard-kpis').innerHTML=kpis.map(k=>'<div class="dashboard-kpi"><small>'+k[0]+'</small><strong>'+k[1]+'</strong><span>'+k[2]+'</span></div>').join('');
     $('dashboard-hours').innerHTML=dashboardProgressSvg(timeline);
-    $('dashboard-areas').innerHTML=dashboardCompare(currentTotals);
+    $('dashboard-counting-list').innerHTML=dashboardCountingList(timeline);
+    $('dashboard-counting-note').textContent=timeline.observed?
+      'Cada ponto apresenta o total medido na contagem, sem somar contagens anteriores.'+
+        (timeline.skipped.length?' C'+timeline.skipped.join(', C')+' ignorada(s) por conter expressões inválidas.':''):
+      'Preencha uma contagem para iniciar o gráfico.';
+    $('dashboard-areas').innerHTML=dashboardCompare(totals);
     $('dashboard-heat').innerHTML=dashboardHeat(timeline);
-    $('dashboard-saved-dates').innerHTML='<div class="dashboard-history-list">'+days.slice(0,24).map(date=>'<button type="button" class="dashboard-history-date '+(date===state.date?'current':'')+'" data-history-date="'+date+'">'+date.slice(8,10)+'/'+date.slice(5,7)+'/'+date.slice(0,4)+' ('+sessionContainer(date).sessions.length+')</button>').join('')+'</div><p style="font-size:10px;color:#a9c6ee;margin-top:10px">'+days.length+' data(s). Para abrir outra contagem da mesma data, use Contagens salvas.</p>';
+    $('dashboard-saved-dates').innerHTML='<div class="dashboard-history-list">'+days.slice(0,24).map(date=>
+      '<button type="button" class="dashboard-history-date '+(date===state.date?'current':'')+'" data-history-date="'+date+'">'+
+      date.slice(8,10)+'/'+date.slice(5,7)+'/'+date.slice(0,4)+' ('+sessionContainer(date).sessions.length+')</button>').join('')+
+      '</div><p style="font-size:10px;color:#a9c6ee;margin-top:10px">'+days.length+' data(s). Para reabrir outra contagem do dia, use Contagens salvas.</p>';
   }
-  function openDashboard(){closeMathPad();renderDashboard();$('dashboard-modal').classList.remove('hidden');document.body.style.overflow='hidden'}
+    function openDashboard(){closeMathPad();renderDashboard();$('dashboard-modal').classList.remove('hidden');document.body.style.overflow='hidden'}
   function closeDashboard(){$('dashboard-modal').classList.add('hidden');document.body.style.overflow=''}
   function setupDashboard(){
     $('btn-dashboard').addEventListener('click',openDashboard);
